@@ -51,4 +51,6 @@ Vanilla engine: 022fae2e2da92b59b8b1b8ee52887003c624e3c8eca060b209f5d792a7f874f5
 
 ## In-game comparison
 
+Installation record (2026-10-24): 0.1.3-naval-test was installed into the current OG installation and its engine, bootstrap, launcher and version record were verified. Vanilla EXE/DLL hashes remained unchanged. The previous 0.1.2-kneel-test patch build was backed up and hash-verified under F:/Codex/Shogun-2-OG-Patch-Backups before replacement. The installed package hash matches the online private GitHub prerelease asset: 0a6865bae92f849d1c644658e58b8f5ca78c0ce9c3fe7d6096cdc58c715d16be. This confirms installation, not live battle behavior.
+
 Compare vanilla/0.1.2 with 0.1.3 using the same naval battle: player attacks, AI defends, with no mods. Record whether the AI leaves its holding behavior and engages without waiting for the player to approach. Repeat with multiple opposing fleets, different ship classes, reinforcements and a longer battle. Compare AI-attacker behavior and a land battle as controls, then recheck both movement fixes. Campaign naval battles, retreat/disengagement, save/load and multiplayer remain unverified. Do not describe this as an in-game-confirmed fix before results are recorded.
