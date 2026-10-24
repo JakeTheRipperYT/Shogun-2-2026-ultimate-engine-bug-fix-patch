@@ -2,7 +2,7 @@
 
 All inherited patch recipes remain disabled. None is an accepted fix for this project.
 
-Current sole candidate: **050 yari-wall movement**, version **0.1.1-yari-test**. Mapped from CE to OG using the existing pseudocode and verified disassembly. Ten native branch checks pass; in-game before/after and regression results remain pending. See [evidence and test procedure](yari-wall-movement.md). Do not start another fix until this one is evaluated.
+The user selected kneel-fire movement as the next bug after the yari-wall candidate. **0.1.2-kneel-test** retains recipe 050 and adds only **060 kneel-fire movement**. The latter removes a two-byte ability-specific movement veto while preserving later eligibility checks. See [kneel-fire evidence and test procedure](kneel-fire-movement.md) and [yari-wall findings](yari-wall-movement.md). Both have native validation; in-game before/after and regression results remain pending. No other bug is in progress.
 
 | Candidate | Inherited evidence | Disposition |
 | --- | --- | --- |

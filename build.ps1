@@ -119,6 +119,18 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\050-yari-
     if ($LASTEXITCODE -ne 0) { throw 'Native branch tests failed.' }
 }
 
+if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\060-kneel-fire-movement.json') -Raw | ConvertFrom-Json).enabled) {
+    Step 'Kneel fire native x86 eligibility checks'
+    $kneelTest = Join-Path $build 'test-kneel-eligibility.exe'
+    $cmd = "`"$vcvars`" x86 >nul && cl /nologo /TP /O2 /W4 /WX `"$root\tools\test-kneel-eligibility.c`" " +
+           "/Fo:`"$build\test-kneel-eligibility.obj`" /Fe:`"$kneelTest`""
+    cmd /c $cmd | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Kneel eligibility-test build failed.' }
+    & $kneelTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'kneel-eligibility-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Kneel eligibility tests failed.' }
+}
+
 Step 'Package'
 $zip = Join-Path $dist 'Shogun2UltimatePatch_Installer.zip'
 Remove-Item $zip -ErrorAction SilentlyContinue
