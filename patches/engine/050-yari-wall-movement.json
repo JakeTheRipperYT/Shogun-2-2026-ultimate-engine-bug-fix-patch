@@ -1,0 +1,14 @@
+{
+  "id": "yari-wall-movement",
+  "title": "Yari wall: allow movement orders while engaged in melee (test candidate)",
+  "description": "OG counterpart of CE's one-byte movement gate fix. Formation type 3 constructor FUN_101255F0 installs vtable 0x115C0430. Slot +0x28 dispatches FUN_10198560. Its entry obtains context+8 unit via FUN_10095790, then tests unit+0xB9C state, field +0x75C through FUN_1017BEE0(state+0x74C). A true result returns AL=1 with ret 8 before reading the movement request or calling FUN_101542E0. Change JNE at VA 0x1019857C to JMP with the same target 0x10198583, bypassing only that early return. No shared helper, speed modifier, combat stat or other handler is changed. Native before/after branch checks pass; full in-game regression remains pending. See docs/yari-wall-movement.md.",
+  "enabled": true,
+  "writes": [
+    {
+      "va": "0x1019857C",
+      "expect": "75 05",
+      "bytes": "EB 05",
+      "note": "JNE normal movement handling -> unconditional JMP to the same continuation; one changed byte"
+    }
+  ]
+}
