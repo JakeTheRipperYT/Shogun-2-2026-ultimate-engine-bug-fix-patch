@@ -143,6 +143,18 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\070-naval
     if ($LASTEXITCODE -ne 0) { throw 'Naval factory tests failed.' }
 }
 
+if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\080-rank-idle-first-volley.json') -Raw | ConvertFrom-Json).enabled) {
+    Step 'Rank idle guard, ABI and original STOP/START integration checks'
+    $rankTest = Join-Path $build 'test-rank-idle-candidate.exe'
+    $cmd = "`"$vcvars`" x86 >nul && cl /nologo /TP /O2 /W4 /WX `"$root\tools\test-rank-idle-candidate.c`" " +
+           "/Fo:`"$build\test-rank-idle-candidate.obj`" /Fe:`"$rankTest`""
+    cmd /c $cmd | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Rank idle native-test build failed.' }
+    & $rankTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'rank-idle-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Rank idle native checks failed.' }
+}
+
 Step 'Package'
 $zip = Join-Path $dist 'Shogun2UltimatePatch_Installer.zip'
 Remove-Item $zip -ErrorAction SilentlyContinue
