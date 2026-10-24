@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current development build: **0.1.1-yari-test**, containing only the [yari-wall movement candidate](docs/yari-wall-movement.md). Native branch checks pass; in-game verification remains pending. Historical experiments and diagnostics remain disabled. No player release has been published.
+Current development build: **0.1.2-kneel-test**, retaining the [yari-wall movement candidate](docs/yari-wall-movement.md) and adding only [kneel-fire movement](docs/kneel-fire-movement.md). Native checks pass; in-game verification remains pending. Historical experiments and diagnostics remain disabled. Test builds are staged as prereleases in the private repository.
 
 ## Launcher and installer
 
@@ -32,6 +32,6 @@ Requires Visual Studio C++ tools and the .NET Framework 4.8 targeting pack.
 
 The private signing key is generated under ignored `build/keys/`. Back it up before cleaning that directory; never commit or distribute it. The matching public key is `installer/release-public.xml`. Build outputs go to `build/` and `dist/`; builds verify signatures and run installer self-tests.
 
-[Release staging](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases) belongs to this repository only. It is currently private, so the credential-free player updater cannot access its releases. Use offline packages while private. No player release has been published.
+[Release staging](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases) belongs to this repository only. It is currently private, so the credential-free player updater cannot access its releases. Download the test bundle while signed in, then use Offline with its included signed package.
 
 See [bug inventory](docs/bug-inventory.md) and [provenance](docs/provenance.md). Release packages contain reconstruction instructions and our launcher; do not distribute game binaries or packs.
