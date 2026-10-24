@@ -21,4 +21,4 @@ The embedded installer reconstructed the full private pack successfully. Install
 - Signed package SHA-256: `97257a937c4cac5e470e02bb831d9b88ef3992f9346daa76eb55d4910c89b030`.
 - Installer ZIP SHA-256: `1579157315312bb05549c819665bcbedc5637a2dfc7b7d1c7b3d801109e43aaf`.
 
-Startup validation is pending: the launcher returned success and the game responded eight seconds after launch, but exited before the later process check. User confirmation of whether this was a manual close is outstanding. No Windows Application Error event was found. Do not interpret the native tests as proof of successful startup or campaign behavior.
+Startup smoke check passed: the launcher returned zero and the same game process remained responsive with a visible Total War: SHOGUN 2 window for more than three minutes. A read-only host observer confirmed the game-root current directory. An earlier sandbox-scoped process query incorrectly hid this host process; the game had not exited. Campaign trait behavior still requires an in-game check.
