@@ -31,7 +31,7 @@ soldier.byte11F != 0
     && sequence.startTime74 + sequence.delay50 <= world.tick50 * 0.1f
 ```
 
-The flag's precise semantic name is not yet established; do not assume the old siege notes' "wall-link" label explains this use. In the ordinary rank request, the constructed delay field is zero. An outstanding clip can still block the transition despite zero requested delay.
+Continued multi-agent tracing established that this is the embedded movement HSM's FINISHED_STATE flag (HSM at soldier+0xF8, flag+0x27; enter10343A80/1038AE30, exit10343AA0/1038B170). It is not a wall-link flag. See [the guarded candidate review](rank-idle-first-volley-candidate.md). In the ordinary rank request, the constructed delay field is zero. An outstanding clip can still block the transition despite zero requested delay.
 
 ## Why an idle clip can produce a long first-volley wait
 
