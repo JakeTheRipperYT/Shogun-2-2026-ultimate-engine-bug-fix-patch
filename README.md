@@ -4,9 +4,9 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.8-traits-test**. It retains the yari-wall, kneel-movement, naval and initial ranked-idle fixes, and ports the three progressive general-trait corrections from CE changelog entries 10/11: War Is Slaughter enemy morale -1/-2/-3, Brave morale +1/+2/+3, and Cowardly morale -1/-2/-3.
+Current trial: **0.1.9-fear-test**. It retains the previous engine and progressive trait fixes, and fixes cancellation and lost magnitude when fear rewards are combined on a general. War Is Slaughter contributes -1/-2/-3, Sword of Amaterasu -1, and Intimidating retains -4. The level-3 trait + Sword + Intimidating combination therefore supplies -8 enemy morale within the existing fear range.
 
-Only six existing float fields change in the player's original OG data table. Install / Update streams a private copy of vanilla data.pack into UltimatePatch, preserving its PFH3 header, index, table headers and length. The engine redirects only read-only opens of data/data.pack to this managed copy. See [trait details](docs/trait-progression.md), [rank trial details](docs/rank-idle-first-volley.md) and [live baseline evidence](docs/rank-fire-live-baseline.md). This remains a test prerelease pending campaign validation.
+Ten existing float fields change: the previous six trait values plus four fear-skill sign/value corrections. Install / Update streams a private copy of vanilla data.pack, preserving its headers, index, length and every unrelated byte. The engine preserves numeric fear rewards instead of collapsing them to a flat four; positive legacy flags retain their original behavior. Nearby units still take the strongest eligible enemy aura. See [fear investigation and validation](docs/fear-effect-stacking.md) and [trait details](docs/trait-progression.md). Controlled battle validation remains pending; this is a test prerelease.
 
 ## Launcher and installer
 
