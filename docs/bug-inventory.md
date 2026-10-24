@@ -2,6 +2,8 @@
 
 All inherited patch recipes remain disabled. None is an accepted fix for this project.
 
+Current sole candidate: **050 yari-wall movement**, version **0.1.1-yari-test**. Mapped from CE to OG using the existing pseudocode and verified disassembly. Ten native branch checks pass; in-game before/after and regression results remain pending. See [evidence and test procedure](yari-wall-movement.md). Do not start another fix until this one is evaluated.
+
 | Candidate | Inherited evidence | Disposition |
 | --- | --- | --- |
 | 010 siege route reissue | Pending requests repeatedly replaced during wall movement | Historical experiment; notes report lockups persisted |

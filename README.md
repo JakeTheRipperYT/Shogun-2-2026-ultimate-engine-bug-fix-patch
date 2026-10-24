@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Development foundation only. **No engine fixes are enabled or verified in this project yet.** Initial packages exercise installation and launch routing; they are not bug-fix releases. Historical patch candidates remain disabled pending review and OG testing.
+Current development build: **0.1.1-yari-test**, containing only the [yari-wall movement candidate](docs/yari-wall-movement.md). Native branch checks pass; in-game verification remains pending. Historical experiments and diagnostics remain disabled. No player release has been published.
 
 ## Launcher and installer
 

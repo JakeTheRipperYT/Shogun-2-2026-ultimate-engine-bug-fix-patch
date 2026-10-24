@@ -107,6 +107,18 @@ if (-not $SkipTests) {
     Get-Content $report
 }
 
+if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\050-yari-wall-movement.json') -Raw | ConvertFrom-Json).enabled) {
+    Step 'Yari wall native x86 branch checks'
+    $branchTest = Join-Path $build 'test-yari-branch.exe'
+    $cmd = "`"$vcvars`" x86 >nul && cl /nologo /TP /O2 /W4 /WX `"$root\tools\test-yari-branch.c`" " +
+           "/Fo:`"$build\test-yari-branch.obj`" /Fe:`"$branchTest`""
+    cmd /c $cmd | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Native branch-test build failed.' }
+    & $branchTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'yari-branch-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Native branch tests failed.' }
+}
+
 Step 'Package'
 $zip = Join-Path $dist 'Shogun2UltimatePatch_Installer.zip'
 Remove-Item $zip -ErrorAction SilentlyContinue
