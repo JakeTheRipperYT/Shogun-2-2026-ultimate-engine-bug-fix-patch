@@ -8,16 +8,16 @@
 typedef unsigned char (__thiscall *Predicate)(void *);
 static BYTE task[0x60],squad[0x30],entities[3][0x390];
 static void *soldiers[3],*entityTable[0xFC/4],*controllerTable[0x2C/4];
-static int map[3],loaded[3],ready[3],dummyAction;
+static int map[3],loaded[3],ready[3];
 static unsigned char __fastcall loadedFixture(void *self,void *unused) {
     (void)unused;int i=*(int *)((BYTE *)self+0x218);
     return i>=0 && i<3 ? (unsigned char)loaded[i] : 0;
 }
-static unsigned char __fastcall readyFixture(void *self,void *unused,void *action) {
+static unsigned char __fastcall readyFixture(void *self,void *unused,int action) {
     (void)unused;
     BYTE *entity=(BYTE *)self-0x2F8;
     int i=*(int *)(entity+0x218);
-    return action==&dummyAction && i>=0 && i<3 ? (unsigned char)ready[i] : 0;
+    return action==1 && i>=0 && i<3 ? (unsigned char)ready[i] : 0;
 }
 struct Case { const char *name; int current,count,groups[3],isLoaded[3],isReady[3],noAction,inactive,expectLoaded,expectReady; };
 static const Case cases[]={
@@ -50,7 +50,7 @@ int wmain(int argc,wchar_t **argv) {
             soldiers[i]=entities[i];map[i]=v.groups[i];loaded[i]=v.isLoaded[i];ready[i]=v.isReady[i];
             *(void **)entities[i]=entityTable;*(int *)(entities[i]+0x218)=i;
             *(void **)(entities[i]+0x2F8)=controllerTable;
-            *(void **)(entities[i]+0x248)=v.noAction ? NULL : &dummyAction;
+            *(int *)(entities[i]+0x248)=v.noAction ? 0 : 1;
             entities[i][0x384]=(BYTE)(v.inactive ? 0 : 1);
         }
         int a=firstLoaded(task),b=allReady(task);

@@ -1,6 +1,6 @@
 # OG fire by rank — first-volley startup mechanisms
 
-Research date: 2026-10-24. User target: **fire the first volley much earlier when an enemy enters range**, rather than increasing sustained rate of fire. This investigation creates no gameplay patch or new installer build. Installed 0.1.3-naval-test remains unchanged.
+Research date: 2026-10-24. User target: **fire the first volley much earlier when an enemy enters range**, rather than increasing sustained rate of fire. This investigation creates no gameplay patch or new installer build. The original snapshot below described 0.1.3; subsequent local work installed 0.1.6-bugfixpack-test.1. See [the resumed readiness review](ranked-fire-readiness-review.md) for the verified current state, Grok traces, failed candidates and exact readiness conditions.
 
 ## Confirmed mechanisms
 
@@ -42,7 +42,7 @@ The first-loaded predicate scans the squad but filters only mapping value zero. 
 
 The current-ready predicate scans the squad and filters mapping == current group. It returns false on the first member whose controller is unready. Consequently, this stage is governed by the **slowest eligible soldier**, not the first soldier ready to shoot. A late animation/action transition can hold up otherwise-ready soldiers. This establishes the mechanism; it does not establish that it is the dominant cause in the user's battle.
 
-FUN_103CBE40 checks entity+0x384 and entity+0x308. Where the controller is active, it requires entity+0x248 action to exist, then asks the controller at entity+0x2F0 for readiness via virtual +0x28. Other native cases take a ready fallback. It would be incorrect to replace this helper with an unconditional true result: it is shared and represents meaningful action/controller restrictions.
+FUN_103CBE40 checks entity+0x384 and entity+0x308. When the controller is active and entity+0x308 is not 1, entity+0x248 must contain a nonzero numeric action ID, then the controller at entity+0x2F8 is consulted through virtual +0x28 (via the owner at +0x2F0). A ready latch at +0x308 bypasses that compatibility check. Other native cases take a ready fallback. It would be incorrect to replace this helper with an unconditional true result: it is shared and represents meaningful action/controller restrictions.
 
 ## Base OG data values
 
@@ -71,7 +71,7 @@ All 12 scenarios / 24 predicate results pass:
 - Missing action in an active controller blocks readiness; inactive controller follows native fallback.
 - Empty/missing groups pass these predicates vacuously. That alone does not establish a valid firing task; other states handle squad validity.
 
-Supported original engine SHA-256: 022fae2e2da92b59b8b1b8ee52887003c624e3c8eca060b209f5d792a7f874f5. Installed patched engine remains 29bd5cac6520322a203f7702d21431f99436198e9a46941b0f0704ad66bddd6d (0.1.3).
+Supported original engine SHA-256: 022fae2e2da92b59b8b1b8ee52887003c624e3c8eca060b209f5d792a7f874f5. The historical 0.1.3 patched engine hash was 29bd5cac6520322a203f7702d21431f99436198e9a46941b0f0704ad66bddd6d; see the resumed review for the current installation.
 
 ## Next experiment
 
