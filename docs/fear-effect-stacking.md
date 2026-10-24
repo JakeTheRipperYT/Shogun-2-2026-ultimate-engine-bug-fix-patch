@@ -1,5 +1,7 @@
 # Numeric fear rewards: investigation and trial
 
+These are the historical 0.1.9 investigation and initial values. The user revised the rewards in 0.1.10; see [current values](fear-values-0.1.10.md). The engine correction described below remains unchanged.
+
 The user selected numeric trait/item bonuses, retaining Intimidating's vanilla four-point penalty. Target behavior: War Is Slaughter/Bloodthirsty/Blood Soaked contributes 1/2/3, Sword of Amaterasu contributes 1, and Intimidating contributes 4. On one general, level-3 trait + Sword + Intimidating therefore supplies eight points of enemy morale reduction. Legendary Menpo contributes its existing numeric one point too.
 
 ## Original failure

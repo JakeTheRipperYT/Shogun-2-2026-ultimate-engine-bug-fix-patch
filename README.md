@@ -4,9 +4,9 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.9-fear-test**. It retains the previous engine and progressive trait fixes, and fixes cancellation and lost magnitude when fear rewards are combined on a general. War Is Slaughter contributes -1/-2/-3, Sword of Amaterasu -1, and Intimidating retains -4. The level-3 trait + Sword + Intimidating combination therefore supplies -8 enemy morale within the existing fear range.
+Current trial: **0.1.10-fear-values-test**. It retains the existing engine fixes and additive numeric fear correction. War Is Slaughter's three levels now contribute -4/-5/-6, Sword of Amaterasu -4, Dreaded Force -4, and Intimidating remains -4. Level-3 trait + Sword + Intimidating supplies -14 enemy morale within the existing fear range; adding Dreaded Force supplies -18 when all four rewards apply.
 
-Ten existing float fields change: the previous six trait values plus four fear-skill sign/value corrections. Install / Update streams a private copy of vanilla data.pack, preserving its headers, index, length and every unrelated byte. The engine preserves numeric fear rewards instead of collapsing them to a flat four; positive legacy flags retain their original behavior. Nearby units still take the strongest eligible enemy aura. See [fear investigation and validation](docs/fear-effect-stacking.md) and [trait details](docs/trait-progression.md). Controlled battle validation remains pending; this is a test prerelease.
+Thirteen existing float fields change relative to vanilla, retaining Brave/Cowardly progression and the previous fear-skill corrections. This build changes only five data fields relative to 0.1.9; its engine is identical. Install / Update streams a private data.pack, preserving its headers, index, length and unrelated bytes. Nearby units still take the strongest eligible enemy aura. See [current values](docs/fear-values-0.1.10.md) and [fear investigation](docs/fear-effect-stacking.md). Controlled battle validation remains pending; this is a test prerelease.
 
 ## Launcher and installer
 
