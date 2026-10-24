@@ -4,9 +4,9 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.7-rankidle-test**, built from the verified 0.1.3 source baseline. It retains the yari-wall, kneel-movement and naval fixes, and adds only initial ranked-preparation cancellation of named standing idle clips. No replacement data packs or pack redirect are included.
+Current trial: **0.1.8-traits-test**. It retains the yari-wall, kneel-movement, naval and initial ranked-idle fixes, and ports the three progressive general-trait corrections from CE changelog entries 10/11: War Is Slaughter enemy morale -1/-2/-3, Brave morale +1/+2/+3, and Cowardly morale -1/-2/-3.
 
-The restored-build battle trace confirmed idle 155 blocking initial readiness. The signed trial passed 15 installer self-tests, the existing yari/kneel/naval native checks and 1,554 rank guard/ABI/STOP/START cases. Signed-package reconstruction matched the tested engine. Patched battle comparison is in progress; this is an experimental prerelease. See [trial details](docs/rank-idle-first-volley.md) and [live baseline evidence](docs/rank-fire-live-baseline.md).
+Only six existing float fields change in the player's original OG data table. Install / Update streams a private copy of vanilla data.pack into UltimatePatch, preserving its PFH3 header, index, table headers and length. The engine redirects only read-only opens of data/data.pack to this managed copy. See [trait details](docs/trait-progression.md), [rank trial details](docs/rank-idle-first-volley.md) and [live baseline evidence](docs/rank-fire-live-baseline.md). This remains a test prerelease pending campaign validation.
 
 ## Launcher and installer
 
@@ -18,6 +18,7 @@ Installed files:
 Launch_Shogun2_Ultimate_Patch.exe
 Shogun2_UB.exe
 UltimatePatch/empire.retail.dll
+UltimatePatch/data/data.pack
 UltimatePatch/install-state.json
 ```
 
@@ -25,7 +26,7 @@ Saves and settings are shared with OG; use backed-up test saves during developme
 
 ## Build
 
-Requires Visual Studio C++ tools and the .NET Framework 4.8 targeting pack.
+Requires Visual Studio C++ tools, the .NET Framework 4.8 targeting pack and Python 3. Pass -Python with the interpreter path if python.exe is unavailable.
 
 ```powershell
 .\build.ps1 -Keygen -GameDir '<OG game directory>' # first build only
@@ -33,6 +34,8 @@ Requires Visual Studio C++ tools and the .NET Framework 4.8 targeting pack.
 ```
 
 The private signing key is generated under ignored `build/keys/`. Back it up before cleaning that directory; never commit or distribute it. The matching public key is `installer/release-public.xml`. Build outputs go to `build/` and `dist/`; builds verify signatures and run installer self-tests.
+
+The signed release contains only reconstruction instructions and our launcher. It never includes the player's 2.56 GB data pack. Builds verify the six-field recipe against vanilla and reconstruct the pack with bounded memory. The updated installer also builds the table during Install / Update. Existing 0.1.7 installers reject the new package schema safely: download the updated installer ZIP once.
 
 [Release staging](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases) belongs to this repository only. It is currently private, so the credential-free player updater cannot access its releases. Download the test bundle while signed in, then use Offline with its included signed package.
 

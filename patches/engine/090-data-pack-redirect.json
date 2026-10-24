@@ -1,0 +1,230 @@
+{
+  "id": "data-pack-redirect",
+  "title": "Read the managed data.pack shadow only",
+  "description": "Redirect only read-only OPEN_EXISTING CreateFileW requests whose case-insensitive path suffix is data\\data.pack, with a directory boundary, to UltimatePatch\\data\\data.pack. All models.pack, local_en.pack and other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call the original IAT function. PIC wrapper C4A..D1B, loader C40..C49, one table entry D78..D83; disjoint from naval D20..D76 and rank DA0..DF9. Map only 58 path-string bytes in original raw .rdata padding. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.",
+  "enabled": true,
+  "writes": [
+    {
+      "offset": "0x288",
+      "expect": "e8 2a 1f 00",
+      "bytes": "22 2b 1f 00",
+      "note": "Map only the data.pack shadow path in existing raw .rdata padding"
+    },
+    {
+      "va": "0x115a0c40",
+      "expect": "00 00 00 00 00 00 00 00 00 00",
+      "bytes": "e8 00 00 00 00 5b 8d 5b 05 c3",
+      "note": "PIC loader for original mov ebx,[CreateFileW] site"
+    },
+    {
+      "va": "0x115a0c4a",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "56 57 53 e8 00 00 00 00 5f 8b 74 24 10 85 f6 0f 84 b2 00 00 00 83 7c 24 20 03 0f 85 a7 00 00 00 f7 44 24 14 56 01 0d 53 0f 85 99 00 00 00 89 f1 83 c1 02 66 83 79 fe 00 75 f6 89 ca 52 31 db 8d 87 26 01 00 00 8d 04 d8 8d 04 98 0f b6 08 50 8b 54 24 04 c1 e1 01 29 ca 39 f2 72 5f 74 0e 0f b7 4a fe 83 f9 5c 74 05 83 f9 2f 75 4f 8b 04 24 0f b6 00 48 50 31 c9 0f b7 04 4a 83 f8 2f 75 02 b0 5c 83 f8 41 72 07 83 f8 5a 77 02 0c 20 53 8b 5c 24 08 8b 5b 04 01 fb 66 3b 04 4b 5b 75 1c 41 3b 4c 24 00 72 d1 8b 44 24 04 8b 40 08 01 f8 89 44 24 1c 83 c4 0c e9 0d 00 00 00 58 58 43 83 fb 01 0f 82 79 ff ff ff 5a 8b 87 f2 04 00 00 5b 5f 5e ff e0",
+      "note": "Data.pack-only read-only OPEN_EXISTING wrapper, PIC"
+    },
+    {
+      "va": "0x115a0d78",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "0f 00 00 00 b2 2e 1f 00 96 2e 1f 00",
+      "note": "Exactly one match-table entry; no models/local_en redirects"
+    },
+    {
+      "va": "0x11793ae8",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "55 00 6c 00 74 00 69 00 6d 00 61 00 74 00 65 00 50 00 61 00 74 00 63 00 68 00 5c 00 64 00 61 00 74 00 61 00 5c 00 64 00 61 00 74 00 61 00 2e 00 70 00 61 00 63 00 6b 00 00 00",
+      "note": "UTF-16 UltimatePatch\\data\\data.pack; pattern reuses its suffix"
+    },
+    {
+      "va": "0x1009e3a8",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 9d 28 50 01 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11ccd042",
+      "expect": "aa 33",
+      "bytes": "aa 03",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x100c22af",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 96 e9 4d 01 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11cce18c",
+      "expect": "b1 32",
+      "bytes": "b1 02",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x10b9267b",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 ca e5 a0 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d0802a",
+      "expect": "7d 36",
+      "bytes": "7d 06",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x10edfd44",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 01 0f 6c 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d15484",
+      "expect": "46 3d",
+      "bytes": "46 0d",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x1126ed99",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 ac 1e 33 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2bec4",
+      "expect": "9b 3d",
+      "bytes": "9b 0d",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x11284fed",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 58 bc 31 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2c95a",
+      "expect": "ef 3f",
+      "bytes": "ef 0f",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x11297d2b",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 1a 8f 30 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2d292",
+      "expect": "2d 3d",
+      "bytes": "2d 0d",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x112c37f7",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 4e d4 2d 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2ef9a",
+      "expect": "f9 37",
+      "bytes": "f9 07",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x112c7161",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 e4 9a 2d 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2f074",
+      "expect": "63 31",
+      "bytes": "63 01",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x112e150f",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 36 f7 2b 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2fca2",
+      "expect": "11 35",
+      "bytes": "11 05",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x112f1561",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 e4 f6 2a 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d301ea",
+      "expect": "63 35",
+      "bytes": "63 05",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x112f6d86",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 bf 9e 2a 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d30380",
+      "expect": "88 3d",
+      "bytes": "88 0d",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x1150fd7c",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 c9 0e 09 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d3e53e",
+      "expect": "7e 3d",
+      "bytes": "7e 0d",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x11526406",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 3f a8 07 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d3ee92",
+      "expect": "08 34",
+      "bytes": "08 04",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x11533c54",
+      "expect": "ff 15 44 11 5a 11",
+      "bytes": "e8 f1 cf 06 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d3f420",
+      "expect": "56 3c",
+      "bytes": "56 0c",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    },
+    {
+      "va": "0x112c383f",
+      "expect": "8b 1d 44 11 5a 11",
+      "bytes": "e8 fc d3 2d 00 90",
+      "note": "Relative call to data.pack wrapper/EBX loader"
+    },
+    {
+      "va": "0x11d2efa0",
+      "expect": "41 38",
+      "bytes": "41 08",
+      "note": "Old IAT operand HIGHLOW relocation -> ABSOLUTE padding"
+    }
+  ]
+}
