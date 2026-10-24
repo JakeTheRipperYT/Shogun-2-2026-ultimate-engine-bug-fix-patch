@@ -36,8 +36,13 @@ public static class GameLayout {
     public const string StagingPrefix = Folder + ".staging_";
     public const string PreviousPrefix = Folder + ".previous_";
     public const string PackageMagic = "S2UBPKG1";
+    public const string DataPack = "data/data.pack";
+    public const string StreamDeltaMinimum = "0.1.8-traits-test";
     // The only files a schema-1 release may produce inside the managed folder.
     public static readonly string[] Destinations = { GameEngine, Bootstrap };
+    public static bool AllowedDestination(string path, long schema) {
+        return Destinations.Contains(path, StringComparer.Ordinal) || (schema == 2 && path == DataPack);
+    }
     // Files published from the managed folder into the game root.
     public static readonly string[] RootFiles = { Bootstrap, Launcher };
 }
@@ -76,7 +81,10 @@ public sealed class Release {
             r.Manifest = J.Parse(Encoding.UTF8.GetString(ReadEntry(archive, "manifest.json", 96 * 1024 * 1024)));
             r.LauncherExe = ReadEntry(archive, "launcher.exe", 1024 * 1024);
         }
-        if (J.N(r.Manifest, "schema") != 1) throw new InvalidDataException("This release needs a newer installer. Download the latest installer ZIP from GitHub.");
+        long schema = J.N(r.Manifest, "schema");
+        if (schema != 1 && schema != 2) throw new InvalidDataException("This release needs a newer installer. Download the latest installer ZIP from GitHub.");
+        if (schema == 2 && (!r.Manifest.ContainsKey("minimumInstallerVersion") || ReleaseVersion.Parse(J.S(r.Manifest, "minimumInstallerVersion")).CompareTo(ReleaseVersion.Parse(GameLayout.StreamDeltaMinimum)) < 0))
+            throw new InvalidDataException("Schema-2 releases must specify the streaming installer compatibility requirement.");
         if (r.Manifest.ContainsKey("minimumInstallerVersion") && ReleaseVersion.Parse(OnlineUpdates.AppVersion).CompareTo(ReleaseVersion.Parse(J.S(r.Manifest, "minimumInstallerVersion"))) < 0)
             throw new InvalidDataException("This release needs a newer installer. Download the latest installer ZIP from GitHub.");
         return r;
@@ -136,7 +144,26 @@ public sealed class Engine {
 
     static IEnumerable<Dictionary<string, object>> Files(Release r) { return J.Arr(r.Manifest["files"]).Select(J.Obj); }
 
+    static void ValidateFiles(Release r) {
+        long schema = J.N(r.Manifest, "schema");
+        if (schema != 1 && schema != 2) throw new InvalidDataException("Unsupported release schema.");
+        var destinations = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var f in Files(r)) {
+            string destination = J.S(f, "destination");
+            if (!GameLayout.AllowedDestination(destination, schema) || !destinations.Add(destination))
+                throw new InvalidDataException("Unsupported or duplicate release destination: " + destination);
+            bool streamed = f.ContainsKey("kind") && J.S(f, "kind") == "stream-delta";
+            if (destination == GameLayout.DataPack && (!streamed || schema != 2 || J.S(f, "source") != GameLayout.DataPack))
+                throw new InvalidDataException("Only an exact data/data.pack stream delta is supported.");
+            if (streamed && destination != GameLayout.DataPack)
+                throw new InvalidDataException("Streaming is restricted to the managed data pack.");
+            if (f.ContainsKey("kind") && !streamed && J.S(f, "kind") != "byte-delta")
+                throw new InvalidDataException("Unsupported release file kind.");
+        }
+    }
+
     public void Preflight(Release r, string game) {
+        ValidateFiles(r);
         NoLinks(game);
         if (!File.Exists(Under(game, GameLayout.GameExe))) throw new FileNotFoundException("Select the Total War: SHOGUN 2 folder that contains Shogun2.exe.");
         int i = 0;
@@ -164,6 +191,102 @@ public sealed class Engine {
         return output;
     }
 
+    sealed class StreamWrite {
+        public long Offset;
+        public byte[] Expected, Data;
+    }
+
+    static bool Sha256Text(string hash) { return hash != null && hash.Length == 64 && hash.All(c => (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')); }
+
+    static List<StreamWrite> StreamWrites(Dictionary<string, object> f, long sourceLength) {
+        long length = J.N(f, "length");
+        if (length <= 0 || length > 8L * 1024 * 1024 * 1024 || length != sourceLength)
+            throw new InvalidDataException("Stream deltas must preserve the exact supported source length.");
+        if (!Sha256Text(J.S(f, "sourceSha256"))) throw new InvalidDataException("Invalid stream source SHA-256.");
+        var result = new List<StreamWrite>();
+        long total = 0;
+        foreach (var item in J.Arr(f["writes"])) {
+            if (result.Count >= 4096) throw new InvalidDataException("Too many stream writes.");
+            var op = J.Obj(item);
+            var write = new StreamWrite { Offset = J.N(op, "offset"), Expected = J.B(op, "expect"), Data = J.B(op, "data") };
+            if (write.Expected.Length == 0 || write.Expected.Length != write.Data.Length || write.Data.Length > 1024 * 1024 || write.Offset < 0 || write.Offset > length - write.Data.Length)
+                throw new InvalidDataException("Invalid same-length stream write range.");
+            total += write.Data.Length;
+            if (total > 16L * 1024 * 1024) throw new InvalidDataException("Stream delta payload exceeds its bounded limit.");
+            result.Add(write);
+        }
+        result.Sort((a, b) => a.Offset.CompareTo(b.Offset));
+        long end = 0;
+        foreach (var write in result) {
+            if (write.Offset < end) throw new InvalidDataException("Overlapping stream writes are forbidden.");
+            end = write.Offset + write.Data.Length;
+        }
+        return result;
+    }
+
+    static string StreamDelta(FileStream source, Stream output, Dictionary<string, object> f, CancellationToken cancel) {
+        var writes = StreamWrites(f, source.Length);
+        byte[] buffer = new byte[1024 * 1024];
+        using (var originalHash = SHA256.Create()) using (var outputHash = SHA256.Create()) {
+            Action<long> copy = count => {
+                while (count > 0) {
+                    cancel.ThrowIfCancellationRequested();
+                    int got = source.Read(buffer, 0, (int)Math.Min(buffer.Length, count));
+                    if (got <= 0) throw new EndOfStreamException("Source ended while copying a stream delta.");
+                    originalHash.TransformBlock(buffer, 0, got, buffer, 0);
+                    outputHash.TransformBlock(buffer, 0, got, buffer, 0);
+                    output.Write(buffer, 0, got);count -= got;
+                }
+            };
+            foreach (var write in writes) {
+                copy(write.Offset - source.Position);
+                int got = 0;
+                while (got < write.Expected.Length) {
+                    cancel.ThrowIfCancellationRequested();
+                    int n = source.Read(buffer, got, write.Expected.Length - got);
+                    if (n <= 0) throw new EndOfStreamException("Source ended at a stream write.");
+                    got += n;
+                }
+                originalHash.TransformBlock(buffer, 0, got, buffer, 0);
+                for (int i = 0; i < got; i++) if (buffer[i] != write.Expected[i])
+                    throw new InvalidDataException("Original bytes do not match the stream delta at offset " + write.Offset + ".");
+                outputHash.TransformBlock(write.Data, 0, write.Data.Length, write.Data, 0);
+                output.Write(write.Data, 0, write.Data.Length);
+            }
+            copy(source.Length - source.Position);
+            originalHash.TransformFinalBlock(new byte[0], 0, 0);outputHash.TransformFinalBlock(new byte[0], 0, 0);
+            if (Hex(originalHash.Hash) != J.S(f, "sourceSha256")) throw new InvalidDataException("Stream source SHA-256 did not match.");
+            return Hex(outputHash.Hash);
+        }
+    }
+
+    /// <summary>Checks a small recipe and computes its output hash without buffering or distributing the pack.</summary>
+    public static string StreamDeltaHash(string source, Dictionary<string, object> f, CancellationToken cancel) {
+        using (var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024, FileOptions.SequentialScan))
+            return StreamDelta(input, Stream.Null, f, cancel);
+    }
+
+    /// <summary>Creates a managed copy with same-size writes, verifying both sides; deletes its own partial output on failure.</summary>
+    public static void PatchStream(string source, string destination, Dictionary<string, object> f, CancellationToken cancel) {
+        if (String.Equals(Path.GetFullPath(source), Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("A stream delta may not overwrite its source.");
+        if (!Sha256Text(J.S(f, "sha256"))) throw new InvalidDataException("Invalid stream output SHA-256.");
+        bool created = false;
+        try {
+            using (var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024, FileOptions.SequentialScan)) {
+                StreamWrites(f, input.Length); // Validate every range/overlap before creating the output.
+                using (var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1024 * 1024, FileOptions.SequentialScan)) {
+                    created = true;
+                    if (StreamDelta(input, output, f, cancel) != J.S(f, "sha256")) throw new InvalidDataException("Stream output SHA-256 did not match.");
+                    output.Flush(true);
+                }
+            }
+        } catch {
+            if (created && File.Exists(destination)) File.Delete(destination);
+            throw;
+        }
+    }
+
     public void Build(Release r, string game, string stage) {
         Preflight(r, game);
         NoLinks(stage);
@@ -172,10 +295,16 @@ public sealed class Engine {
         int i = 0, count = Files(r).Count();
         foreach (var f in Files(r)) {
             string destination = J.S(f, "destination");
-            if (!GameLayout.Destinations.Contains(destination, StringComparer.Ordinal)) throw new InvalidDataException("Unsupported release destination: " + destination);
+            if (!GameLayout.AllowedDestination(destination, J.N(r.Manifest, "schema"))) throw new InvalidDataException("Unsupported release destination: " + destination);
             Log("Building " + destination + "…", 20 + 60 * i / Math.Max(1, count));
-            byte[] patched = Patch(File.ReadAllBytes(Under(game, J.S(f, "source"))), f);
-            File.WriteAllBytes(Under(stage, destination), patched);
+            string outputPath = Under(stage, destination);
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+            if (f.ContainsKey("kind") && J.S(f, "kind") == "stream-delta")
+                PatchStream(Under(game, J.S(f, "source")), outputPath, f, Cancel);
+            else {
+                byte[] patched = Patch(File.ReadAllBytes(Under(game, J.S(f, "source"))), f);
+                File.WriteAllBytes(outputPath, patched);
+            }
             RequireHash(Under(stage, destination), J.S(f, "sha256"), "generated file");
             recorded.Add(new Dictionary<string, object> { { "file", destination }, { "sha256", J.S(f, "sha256") } });
             i++;
@@ -184,7 +313,7 @@ public sealed class Engine {
             if (!File.Exists(Under(stage, required))) throw new InvalidDataException("This release does not produce " + required + ".");
         File.WriteAllBytes(Under(stage, GameLayout.Launcher), r.LauncherExe);
         var state = new Dictionary<string, object> {
-            { "schema", 1 }, { "version", r.Version }, { "packageSha256", r.PackageHash },
+            { "schema", J.N(r.Manifest, "schema") }, { "version", r.Version }, { "packageSha256", r.PackageHash },
             { "gameBuild", r.Manifest.ContainsKey("gameBuild") ? J.S(r.Manifest, "gameBuild") : "" },
             { "installedUtc", DateTime.UtcNow.ToString("o") }, { "files", recorded.ToArray() },
             { "launcherSha256", Hash(r.LauncherExe) }
@@ -289,9 +418,16 @@ public sealed class Engine {
         using (new FileStream(Under(game, GameLayout.LockFile), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.DeleteOnClose)) {
             RejectLinkedFile(record);
             var installed = J.Parse(File.ReadAllText(record));
-            if (J.N(installed, "schema") != 1) throw new InvalidDataException("Unrecognized installation record; nothing was removed.");
+            long installedSchema = J.N(installed, "schema");
+            if (installedSchema != 1 && installedSchema != 2) throw new InvalidDataException("Unrecognized installation record; nothing was removed.");
             var files = J.Arr(installed["files"]).Select(J.Obj).Select(x => J.S(x, "file")).ToArray();
-            if (files.Any(x => !GameLayout.Destinations.Contains(x, StringComparer.Ordinal))) throw new InvalidDataException("Unexpected installed file paths; nothing was removed.");
+            if (files.Any(x => !GameLayout.AllowedDestination(x, installedSchema)) || files.Distinct(StringComparer.Ordinal).Count() != files.Length) throw new InvalidDataException("Unexpected installed file paths; nothing was removed.");
+            if (installedSchema == 2) foreach (var file in J.Arr(installed["files"]).Select(J.Obj)) {
+                string path = Under(live, J.S(file, "file"));
+                RejectLinkedFile(path);NoLinks(Path.GetDirectoryName(path));
+                if (!file.ContainsKey("sha256") || !Sha256Text(J.S(file, "sha256")) || (File.Exists(path) && FileHash(path) != J.S(file, "sha256")))
+                    throw new IOException("A managed file differs from its installation record; nothing was removed.");
+            }
             var owned = files.Select(x => Under(live, x)).ToList();
             foreach (string name in GameLayout.RootFiles) {
                 string local = Under(live, name), root = Under(game, name);
@@ -309,7 +445,7 @@ public sealed class Engine {
             // Remove only our named files; the record goes last so a failed attempt can be retried.
             foreach (string path in owned) if (File.Exists(path)) File.Delete(path);
             File.Delete(record);
-            foreach (string folder in new[] { Under(live, "previous-launchers"), live })
+            foreach (string folder in new[] { Under(live, "data"), Under(live, "previous-launchers"), live })
                 if (Directory.Exists(folder) && !Directory.EnumerateFileSystemEntries(folder).Any()) Directory.Delete(folder);
             foreach (string dir in Directory.EnumerateDirectories(game, GameLayout.PreviousPrefix + "*").ToArray()) {
                 try { DeleteManagedCopy(dir); } catch (IOException) { } catch (UnauthorizedAccessException) { }

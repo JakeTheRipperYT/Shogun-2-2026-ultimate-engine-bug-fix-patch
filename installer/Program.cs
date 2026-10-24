@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -326,6 +328,7 @@ static class SelfTests {
         spec["sha256"] = Engine.Hash(source);
         Expect<InvalidDataException>(() => Engine.Patch(source, spec), "Unverified patch output accepted.");
         results.Add("PASS: byte writes, file growth and output verification");
+        StreamTests(results);
 
         if (Release.HasEmbedded()) {
             var release = Release.Load(null);
@@ -428,6 +431,138 @@ static class SelfTests {
         Engine.NoLinks(root);
         if (!Path.GetFileName(root).StartsWith(prefix, StringComparison.Ordinal)) throw new Exception("Invalid self-test cleanup target.");
         Directory.Delete(root, true);
+    }
+
+    static Dictionary<string, object> Clone(Dictionary<string, object> value) { return J.Parse(J.Json().Serialize(value)); }
+
+    static Dictionary<string, object> SmallFile(string source, string destination, byte[] original, byte[] output) {
+        return new Dictionary<string, object> {
+            { "source", source }, { "destination", destination }, { "sourceSha256", Engine.Hash(original) },
+            { "length", output.Length }, { "sha256", Engine.Hash(output) },
+            { "writes", new object[] { new Dictionary<string, object> { { "offset", 0 }, { "data", Convert.ToBase64String(output) } } } }
+        };
+    }
+
+    static byte[] SignedSchemaFixture(RSACryptoServiceProvider rsa, int schema, string minimum) {
+        var manifest = new Dictionary<string, object> { { "schema", schema }, { "version", "0.1.8-traits-test" } };
+        if (minimum != null) manifest["minimumInstallerVersion"] = minimum;
+        byte[] zip;
+        using (var buffer = new MemoryStream()) {
+            using (var archive = new ZipArchive(buffer, ZipArchiveMode.Create, true)) {
+                using (var writer = new StreamWriter(archive.CreateEntry("manifest.json").Open())) writer.Write(J.Json().Serialize(manifest));
+                using (var output = archive.CreateEntry("launcher.exe").Open()) output.WriteByte(1);
+            }
+            zip = buffer.ToArray();
+        }
+        byte[] signature = rsa.SignData(zip, CryptoConfig.MapNameToOID("SHA256"));
+        using (var package = new MemoryStream()) {
+            byte[] magic = Encoding.ASCII.GetBytes(GameLayout.PackageMagic);
+            package.Write(magic, 0, magic.Length);package.Write(BitConverter.GetBytes(signature.Length), 0, 4);
+            package.Write(signature, 0, signature.Length);package.Write(zip, 0, zip.Length);return package.ToArray();
+        }
+    }
+
+    static void StreamTests(List<string> results) {
+        string root = Path.Combine(Path.GetTempPath(), "S2UB-stream-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try {
+            byte[] original = new byte[2 * 1024 * 1024 + 31];
+            for (int i = 0; i < original.Length; i++) original[i] = (byte)(i * 17 + 3);
+            byte[] expected = (byte[])original.Clone();
+            int boundary = 1024 * 1024 - 2;
+            byte[] first = { 0xA0, 0xB1, 0xC2, 0xD3 }, last = { 0xE4, 0xF5 };
+            Buffer.BlockCopy(first, 0, expected, boundary, first.Length);Buffer.BlockCopy(last, 0, expected, expected.Length - last.Length, last.Length);
+            var spec = new Dictionary<string, object> {
+                { "kind", "stream-delta" }, { "source", GameLayout.DataPack }, { "destination", GameLayout.DataPack },
+                { "length", (long)original.Length }, { "sourceSha256", Engine.Hash(original) }, { "sha256", Engine.Hash(expected) },
+                { "writes", new object[] {
+                    new Dictionary<string, object> { { "offset", boundary }, { "expect", Convert.ToBase64String(original.Skip(boundary).Take(4).ToArray()) }, { "data", Convert.ToBase64String(first) } },
+                    new Dictionary<string, object> { { "offset", original.Length - 2 }, { "expect", Convert.ToBase64String(original.Skip(original.Length - 2).ToArray()) }, { "data", Convert.ToBase64String(last) } }
+                } }
+            };
+            string source = Path.Combine(root, "source.pack"), output = Path.Combine(root, "output.pack");
+            File.WriteAllBytes(source, original);
+            if (Engine.StreamDeltaHash(source, spec, CancellationToken.None) != Engine.Hash(expected)) throw new Exception("Streaming hash calculation failed.");
+            Engine.PatchStream(source, output, spec, CancellationToken.None);
+            if (Engine.FileHash(output) != Engine.Hash(expected) || Engine.FileHash(source) != Engine.Hash(original)) throw new Exception("Stream reconstruction/source preservation failed.");
+            results.Add("PASS: bounded stream copy patches buffer-boundary/end writes, verifies hashes and preserves source");
+            File.Delete(output);
+            var wrong = Clone(spec);
+            J.Obj(J.Arr(wrong["writes"])[0])["offset"] = -1;
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Negative stream range accepted.");
+            wrong = Clone(spec);J.Obj(J.Arr(wrong["writes"])[1])["offset"] = boundary + 1;
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Overlapping stream writes accepted.");
+            wrong = Clone(spec);J.Obj(J.Arr(wrong["writes"])[0])["data"] = Convert.ToBase64String(new byte[] { 1 });
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Variable-size stream write accepted.");
+            wrong = Clone(spec);wrong["length"] = original.Length + 1;
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Stream length change accepted.");
+            if (File.Exists(output)) throw new Exception("Malformed stream created an output.");
+            results.Add("PASS: stream rejects negative/overlapping/variable-size writes and length changes before output creation");
+            wrong = Clone(spec);J.Obj(J.Arr(wrong["writes"])[0])["expect"] = Convert.ToBase64String(new byte[4]);
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Mismatched original bytes accepted.");
+            if (File.Exists(output)) throw new Exception("Failed stream retained partial output.");
+            wrong = Clone(spec);wrong["sourceSha256"] = new string('0', 64);
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Wrong stream source SHA accepted.");
+            wrong = Clone(spec);wrong["sha256"] = new string('0', 64);
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, output, wrong, CancellationToken.None), "Wrong stream output SHA accepted.");
+            Expect<OperationCanceledException>(() => Engine.PatchStream(source, output, spec, new CancellationToken(true)), "Stream cancellation ignored.");
+            if (File.Exists(output) || Engine.FileHash(source) != Engine.Hash(original)) throw new Exception("Failed/cancelled stream changed source or retained output.");
+            File.WriteAllText(output, "foreign output");
+            Expect<IOException>(() => Engine.PatchStream(source, output, spec, CancellationToken.None), "Existing output overwritten.");
+            if (File.ReadAllText(output) != "foreign output") throw new Exception("Unowned stream output deleted.");
+            Expect<InvalidDataException>(() => Engine.PatchStream(source, source, spec, CancellationToken.None), "Stream source could be overwritten.");
+            results.Add("PASS: stream rejects old-byte/hash mismatches, cleans cancelled output and preserves pre-existing/source files");
+
+            string game = Path.Combine(root, "game");Directory.CreateDirectory(Engine.Under(game, "data"));
+            byte[] exe = Encoding.ASCII.GetBytes("vanilla exe"), dll = Encoding.ASCII.GetBytes("vanilla dll");
+            File.WriteAllBytes(Engine.Under(game, GameLayout.GameExe), exe);File.WriteAllBytes(Engine.Under(game, GameLayout.GameEngine), dll);
+            File.WriteAllBytes(Engine.Under(game, GameLayout.DataPack), original);
+            var engineSpec = SmallFile(GameLayout.GameEngine, GameLayout.GameEngine, dll, Encoding.ASCII.GetBytes("patched dll"));
+            var bootstrapSpec = SmallFile(GameLayout.GameExe, GameLayout.Bootstrap, exe, Encoding.ASCII.GetBytes("bootstrap"));
+            var legacy = new Release { PackageHash = new string('1', 64), LauncherExe = Encoding.ASCII.GetBytes("launcher"), Manifest = new Dictionary<string, object> {
+                { "schema", 1 }, { "version", "0.1.7-rankidle-test" }, { "files", new object[] { engineSpec, bootstrapSpec } }
+            } };
+            var streamed = new Release { PackageHash = new string('2', 64), LauncherExe = legacy.LauncherExe, Manifest = new Dictionary<string, object> {
+                { "schema", 2 }, { "version", "0.1.8-traits-test" }, { "minimumInstallerVersion", GameLayout.StreamDeltaMinimum },
+                { "files", new object[] { engineSpec, bootstrapSpec, spec } }
+            } };
+            var installer = new Engine { IgnoreRunningGame = true };
+            installer.Install(legacy, game);installer.Install(streamed, game);
+            string live = Engine.Under(game, GameLayout.Folder), livePack = Engine.Under(live, GameLayout.DataPack);
+            if (Engine.FileHash(livePack) != Engine.Hash(expected) || J.N(J.Parse(File.ReadAllText(Engine.Under(live, GameLayout.StateFile))), "schema") != 2)
+                throw new Exception("Schema-1 to schema-2 install failed.");
+            results.Add("PASS: schema-1 baseline upgrades to a verified schema-2 managed data pack");
+            var badRelease = new Release { PackageHash = streamed.PackageHash, LauncherExe = streamed.LauncherExe, Manifest = Clone(streamed.Manifest) };
+            var badPack = J.Obj(J.Arr(badRelease.Manifest["files"])[2]);J.Obj(J.Arr(badPack["writes"])[0])["expect"] = Convert.ToBase64String(new byte[4]);
+            Expect<InvalidDataException>(() => installer.Install(badRelease, game), "Bad stream update published.");
+            if (Engine.FileHash(livePack) != Engine.Hash(expected) || Engine.InstalledVersion(game) != streamed.Version || Directory.GetDirectories(game, GameLayout.StagingPrefix + "*").Length != 0)
+                throw new Exception("Failed stream update changed the live installation.");
+            string stage = Engine.Under(game, GameLayout.StagingPrefix + "stream-rollback"), previous = Engine.Under(game, GameLayout.PreviousPrefix + "stream-rollback");
+            Directory.CreateDirectory(Engine.Under(stage, "data"));
+            File.WriteAllText(Engine.Under(stage, GameLayout.Bootstrap), "incomplete bootstrap");File.WriteAllText(Engine.Under(stage, GameLayout.DataPack), "incomplete pack");
+            Expect<FileNotFoundException>(() => Engine.PublishVerified(stage, game, previous), "Incomplete stream publication succeeded.");
+            if (Engine.FileHash(livePack) != Engine.Hash(expected) || File.ReadAllBytes(Engine.Under(game, GameLayout.Bootstrap)).Length != Encoding.ASCII.GetBytes("bootstrap").Length)
+                throw new Exception("Publication rollback did not restore the managed pack/bootstrap.");
+            results.Add("PASS: failed stream build/publication preserves the previous pack and restores root launchers");
+            File.WriteAllText(livePack, "unrecognized replacement");
+            Expect<IOException>(() => installer.Uninstall(game), "Modified managed data pack deleted.");
+            if (!File.Exists(Engine.Under(game, GameLayout.Launcher))) throw new Exception("Ownership rejection removed root files.");
+            File.WriteAllBytes(livePack, expected);installer.Uninstall(game);
+            if (File.Exists(livePack) || File.Exists(Engine.Under(live, GameLayout.StateFile)) || Engine.FileHash(Engine.Under(game, GameLayout.DataPack)) != Engine.Hash(original))
+                throw new Exception("Schema-2 uninstall/source preservation failed.");
+            results.Add("PASS: schema-2 uninstall checks ownership and removes only managed data, keeping vanilla pack");
+            using (var rsa = new RSACryptoServiceProvider(2048)) {
+                string key = rsa.ToXmlString(false);
+                Release.Parse(SignedSchemaFixture(rsa, 1, "0.1.0-preview"), key);
+                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 3, GameLayout.StreamDeltaMinimum), key), "Unknown release schema accepted.");
+                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 2, null), key), "Schema-2 compatibility guard omitted.");
+                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 2, "0.1.0-preview"), key), "Schema-2 old installer guard accepted.");
+                if (ReleaseVersion.Parse(OnlineUpdates.AppVersion).CompareTo(ReleaseVersion.Parse(GameLayout.StreamDeltaMinimum)) >= 0)
+                    Release.Parse(SignedSchemaFixture(rsa, 2, GameLayout.StreamDeltaMinimum), key);
+                else Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 2, GameLayout.StreamDeltaMinimum), key), "Old installer accepted streaming package.");
+                results.Add("PASS: signed schema compatibility accepts legacy releases and enforces schema-2 installer minimum");
+            }
+        } finally { Cleanup(root, "S2UB-stream-test-"); }
     }
 }
 }

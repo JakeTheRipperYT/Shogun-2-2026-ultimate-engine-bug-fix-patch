@@ -1,6 +1,6 @@
 // Developer-only release tooling. Not shipped to players.
 //   ReleaseTool keygen [--force]
-//   ReleaseTool make --game <dir> --version <x.y.z[-tag]> --launcher <exe> --patches <dir> --out <file.s2ub> [--dev-output <dir>] [--key <xml>]
+//   ReleaseTool make --game <dir> --version <x.y.z[-tag]> --launcher <exe> --patches <dir> --out <file.s2ub> [--data-patches <dir>] [--dev-output <dir>] [--key <xml>]
 //   ReleaseTool verify <file.s2ub>
 using System;
 using System.Collections.Generic;
@@ -80,15 +80,23 @@ static class ReleaseTool {
         var applied = new List<Dictionary<string, object>>();
         byte[] engine = EnginePatches.Apply(dll, Need(o, "patches"), applied);
 
-        var files = new[] {
+        var files = new List<Dictionary<string, object>> {
             FileSpec(GameLayout.GameEngine, GameLayout.GameEngine, dll, engine),
             FileSpec(GameLayout.GameExe, GameLayout.Bootstrap, exe, bootstrap),
         };
+        bool dataDelta = false;
+        if (o.ContainsKey("data-patches")) foreach (string path in Directory.GetFiles(o["data-patches"], "*.json").OrderBy(x => x, StringComparer.Ordinal)) {
+            var recipe = J.Parse(File.ReadAllText(path));
+            if (!recipe.ContainsKey("enabled") || !Convert.ToBoolean(recipe["enabled"])) continue;
+            if (dataDelta) throw new InvalidDataException("Only one data/data.pack delta recipe may be enabled.");
+            files.Add(StreamFileSpec(game, recipe));dataDelta = true;
+            applied.Add(new Dictionary<string, object> { { "id", J.S(recipe, "id") }, { "title", J.S(recipe, "title") }, { "description", recipe.ContainsKey("description") ? J.S(recipe, "description") : "" } });
+        }
         var manifest = new Dictionary<string, object> {
-            { "schema", 1 }, { "version", version }, { "minimumInstallerVersion", "0.1.0-preview" },
+            { "schema", dataDelta ? 2 : 1 }, { "version", version }, { "minimumInstallerVersion", dataDelta ? GameLayout.StreamDeltaMinimum : "0.1.0-preview" },
             { "gameBuild", o.ContainsKey("game-build") ? o["game-build"] : "" },
             { "createdUtc", DateTime.UtcNow.ToString("o") },
-            { "patches", applied.ToArray() }, { "files", files },
+            { "patches", applied.ToArray() }, { "files", files.ToArray() },
         };
         byte[] zip;
         using (var m = new MemoryStream()) {
@@ -114,6 +122,15 @@ static class ReleaseTool {
             Directory.CreateDirectory(dev);
             File.WriteAllBytes(Path.Combine(dev, GameLayout.GameEngine), engine);
             File.WriteAllBytes(Path.Combine(dev, GameLayout.Bootstrap), bootstrap);
+            foreach (var f in files.Where(x => x.ContainsKey("kind") && J.S(x, "kind") == "stream-delta")) {
+                string destination = Engine.Under(dev, J.S(f, "destination"));
+                string source = Engine.Under(game, J.S(f, "source"));
+                if (String.Equals(Path.GetFullPath(destination), Path.GetFullPath(source), StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("Developer output may not overwrite the vanilla data pack.");
+                Directory.CreateDirectory(Path.GetDirectoryName(destination));
+                if (File.Exists(destination)) File.Delete(destination);
+                Engine.PatchStream(source, destination, f, System.Threading.CancellationToken.None);
+            }
         }
         Console.WriteLine("Release " + version + " -> " + Path.GetFullPath(outPath));
         Console.WriteLine("  engine patches applied: " + applied.Count);
@@ -123,6 +140,41 @@ static class ReleaseTool {
     static void Entry(ZipArchive a, string name, byte[] data) {
         var e = a.CreateEntry(name, CompressionLevel.Optimal);
         using (var s = e.Open()) s.Write(data, 0, data.Length);
+    }
+
+    static byte[] HexBytes(string value) {
+        string compact = String.Concat(value.Where(c => !Char.IsWhiteSpace(c)));
+        if (compact.Length == 0 || compact.Length % 2 != 0) throw new InvalidDataException("A data write needs complete hexadecimal bytes.");
+        var bytes = new byte[compact.Length / 2];
+        for (int i = 0; i < bytes.Length; i++) bytes[i] = Byte.Parse(compact.Substring(i * 2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+        return bytes;
+    }
+
+    static Dictionary<string, object> StreamFileSpec(string game, Dictionary<string, object> recipe) {
+        if (J.S(recipe, "source") != GameLayout.DataPack || J.S(recipe, "destination") != GameLayout.DataPack)
+            throw new InvalidDataException("Data recipes may only copy vanilla data/data.pack into the managed data/data.pack.");
+        string source = Engine.Under(game, GameLayout.DataPack);
+        long length = new FileInfo(source).Length;
+        if (recipe.ContainsKey("length") && J.N(recipe, "length") != length) throw new InvalidDataException("Data recipe source length does not match.");
+        var writes = new List<object>();
+        foreach (var item in J.Arr(recipe["writes"])) {
+            var op = J.Obj(item);
+            string text = J.S(op, "offset");
+            long offset = text.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? Int64.Parse(text.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture) : Int64.Parse(text, CultureInfo.InvariantCulture);
+            writes.Add(new Dictionary<string, object> {
+                { "offset", offset }, { "expect", Convert.ToBase64String(HexBytes(J.S(op, "expect"))) },
+                { "data", Convert.ToBase64String(HexBytes(J.S(op, "bytes"))) }
+            });
+        }
+        var spec = new Dictionary<string, object> {
+            { "kind", "stream-delta" }, { "source", GameLayout.DataPack }, { "destination", GameLayout.DataPack },
+            { "sourceSha256", J.S(recipe, "sourceSha256") }, { "length", length }, { "writes", writes.ToArray() }
+        };
+        Console.WriteLine("Verifying streamed data pack recipe (bounded memory): " + J.S(recipe, "id"));
+        string hash = Engine.StreamDeltaHash(source, spec, System.Threading.CancellationToken.None);
+        if (recipe.ContainsKey("sha256") && J.S(recipe, "sha256") != hash) throw new InvalidDataException("Data recipe output SHA-256 did not match.");
+        spec["sha256"] = hash;
+        return spec;
     }
 
     /// <summary>Describes <paramref name="patched"/> as byte writes over a copy of <paramref name="vanilla"/>.</summary>

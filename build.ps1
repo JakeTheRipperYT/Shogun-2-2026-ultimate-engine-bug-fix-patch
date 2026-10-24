@@ -15,6 +15,7 @@
 param(
     [string]$Version,
     [string]$GameDir,
+    [string]$Python = $env:OGPATCH_PYTHON,
     [switch]$Keygen,
     [switch]$SkipTests
 )
@@ -57,6 +58,10 @@ if (-not $GameDir) {
 $acf = Join-Path (Split-Path (Split-Path $GameDir)) 'appmanifest_34330.acf'
 $gameBuild = if (Test-Path $acf) { [regex]::Match((Get-Content $acf -Raw), '"buildid"\s+"(\d+)"').Groups[1].Value } else { '' }
 
+Step 'Verify progressive trait data recipe against vanilla OG'
+if (-not $Python) { $Python = (Get-Command python.exe -ErrorAction Stop).Source }
+Run $Python @((Join-Path $root 'tools\build-trait-progression.py'), '--game-dir', $GameDir, '--check')
+
 # --- Launcher --------------------------------------------------------------------------------
 Step 'Launcher'
 $launcher = Join-Path $build 'Launch_Shogun2_Ultimate_Patch.exe'
@@ -85,7 +90,7 @@ try {
     Step "Release $Version from $GameDir (Steam build $gameBuild)"
     $package = Join-Path $build "Shogun2UltimatePatch-$Version.s2ub"
     $makeArgs = @('make', '--game', $GameDir, '--version', $Version, '--launcher', $launcher,
-                  '--patches', (Join-Path $root 'patches\engine'), '--out', $package, '--dev-output', (Join-Path $build 'dev'))
+                  '--patches', (Join-Path $root 'patches\engine'), '--data-patches', (Join-Path $root 'patches\data'), '--out', $package, '--dev-output', (Join-Path $build 'dev'))
     if ($gameBuild) { $makeArgs += @('--game-build', $gameBuild) }
     Run $tool $makeArgs
     Run $tool @('verify', $package)
@@ -153,6 +158,18 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\080-rank-
     & $rankTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
         Tee-Object -FilePath (Join-Path $build 'rank-idle-tests.txt') | Out-Host
     if ($LASTEXITCODE -ne 0) { throw 'Rank idle native checks failed.' }
+}
+
+if (-not $SkipTests) {
+    Step 'Managed data.pack redirect native x86 path, ABI and ASLR checks'
+    $redirectTest = Join-Path $build 'test-data-pack-redirect.exe'
+    $cmd = "`"$vcvars`" x86 >nul && cl /nologo /TP /O2 /W4 /WX `"$root\tools\test-data-pack-redirect.c`" " +
+           "/Fo:`"$build\test-data-pack-redirect.obj`" /Fe:`"$redirectTest`""
+    cmd /c $cmd | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Data redirect native-test build failed.' }
+    & $redirectTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'data-redirect-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Data redirect native checks failed.' }
 }
 
 Step 'Package'

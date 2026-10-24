@@ -1,0 +1,49 @@
+{
+  "id": "trait-progression",
+  "title": "Progressive general traits: Bloodthirsty, Brave and Cowardly",
+  "description": "Match the CE progression correction: change only the six morale floats at levels 2/3 of the three base-campaign trait lines. Keep level 1, Cowardly personal security, thresholds, FOTS traits, every other table, PFH3 header and index unchanged.",
+  "enabled": true,
+  "source": "data/data.pack",
+  "destination": "data/data.pack",
+  "sourceSha256": "6596d4f5e51f3a95c79a90df782d9ef53c850e30c46bbbf9b0d2444f3668670a",
+  "length": 2565173720,
+  "sha256": "73d47046bd097fbec2a1c2013426e573b617b8a6cab0aa084ab651778711c752",
+  "writes": [
+    {
+      "offset": "0x4724f7d0",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 00 c0",
+      "note": "S2_trait_general_bloodthirsty_2 / mod_unit_morale_enemy: -1 -> -2"
+    },
+    {
+      "offset": "0x4724f840",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 40 c0",
+      "note": "S2_trait_general_bloodthirsty_3 / mod_unit_morale_enemy: -1 -> -3"
+    },
+    {
+      "offset": "0x4724f904",
+      "expect": "00 00 80 3f",
+      "bytes": "00 00 00 40",
+      "note": "S2_trait_general_brave_2 / mod_unit_morale_local: 1 -> 2"
+    },
+    {
+      "offset": "0x4724f966",
+      "expect": "00 00 80 3f",
+      "bytes": "00 00 40 40",
+      "note": "S2_trait_general_brave_3 / mod_unit_morale_local: 1 -> 3"
+    },
+    {
+      "offset": "0x4724fa2e",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 00 c0",
+      "note": "S2_trait_general_coward_2 / mod_unit_morale_local: -1 -> -2"
+    },
+    {
+      "offset": "0x4724fa92",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 40 c0",
+      "note": "S2_trait_general_coward_3 / mod_unit_morale_local: -1 -> -3"
+    }
+  ]
+}
