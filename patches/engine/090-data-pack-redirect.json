@@ -1,14 +1,14 @@
 {
   "id": "data-pack-redirect",
   "title": "Read the managed data.pack shadow only",
-  "description": "Redirect only read-only OPEN_EXISTING CreateFileW requests whose case-insensitive path suffix is data\\data.pack, with a directory boundary, to UltimatePatch\\data\\data.pack. All models.pack, local_en.pack and other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call the original IAT function. PIC wrapper C4A..D1B, loader C40..C49, one table entry D78..D83; disjoint from naval D20..D76 and rank DA0..DF9. Map only 58 path-string bytes in original raw .rdata padding. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.",
+  "description": "Redirect only read-only OPEN_EXISTING CreateFileW requests whose case-insensitive path suffix is data\\data.pack, with a directory boundary, to UltimatePatch\\data\\data.pack. All models.pack, local_en.pack and other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call the original IAT function. PIC wrapper C4A..D1B, loader C40..C49, one table entry D78..D83; disjoint from naval D20..D76 and rank DA0..DF9. Store 58 path-string bytes in original raw .rdata padding; map adjacent reserved padding through 0x11793B7F for adapter100. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.",
   "enabled": true,
   "writes": [
     {
       "offset": "0x288",
       "expect": "e8 2a 1f 00",
-      "bytes": "22 2b 1f 00",
-      "note": "Map only the data.pack shadow path in existing raw .rdata padding"
+      "bytes": "80 2b 1f 00",
+      "note": "Map the shadow path and adjacent reserved adapter100 zero padding within existing raw .rdata"
     },
     {
       "va": "0x115a0c40",

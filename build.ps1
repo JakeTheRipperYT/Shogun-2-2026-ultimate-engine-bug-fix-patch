@@ -58,9 +58,9 @@ if (-not $GameDir) {
 $acf = Join-Path (Split-Path (Split-Path $GameDir)) 'appmanifest_34330.acf'
 $gameBuild = if (Test-Path $acf) { [regex]::Match((Get-Content $acf -Raw), '"buildid"\s+"(\d+)"').Groups[1].Value } else { '' }
 
-Step 'Verify progressive trait data recipe against vanilla OG'
+Step 'Verify progressive trait and numeric fear data recipe against vanilla OG'
 if (-not $Python) { $Python = (Get-Command python.exe -ErrorAction Stop).Source }
-Run $Python @((Join-Path $root 'tools\build-trait-progression.py'), '--game-dir', $GameDir, '--check')
+Run $Python @((Join-Path $root 'tools\build-fear-stacking.py'), '--game-dir', $GameDir, '--check')
 
 # --- Launcher --------------------------------------------------------------------------------
 Step 'Launcher'
@@ -170,6 +170,18 @@ if (-not $SkipTests) {
     & $redirectTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
         Tee-Object -FilePath (Join-Path $build 'data-redirect-tests.txt') | Out-Host
     if ($LASTEXITCODE -ne 0) { throw 'Data redirect native checks failed.' }
+}
+
+if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\100-fear-effect-stacking.json') -Raw | ConvertFrom-Json).enabled) {
+    Step 'Fear source constructor and complete aura native x86 checks'
+    $fearTest = Join-Path $build 'test-fear-stacking.exe'
+    $cmd = "`"$vcvars`" x86 >nul && cl /nologo /TP /O2 /W4 /WX `"$root\tools\test-fear-stacking.c`" " +
+           "/Fo:`"$build\test-fear-stacking.obj`" /Fe:`"$fearTest`""
+    cmd /c $cmd | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Fear native-test build failed.' }
+    & $fearTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'fear-stacking-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Fear native checks failed.' }
 }
 
 Step 'Package'

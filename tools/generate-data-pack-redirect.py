@@ -109,10 +109,12 @@ def main():
 
     if STRINGS != base + rdata[2] + rdata[1]:
         raise ValueError('Unexpected original .rdata end')
-    new_rdata_size = STRINGS + len(strings) - base - rdata[2]
+    # Reserve the adjacent zero padding through 3B80 for adapter100 as well.
+    # Keep one owner for the shared VirtualSize header write.
+    new_rdata_size = max(STRINGS + len(strings), 0x11793B80) - base - rdata[2]
     if new_rdata_size > rdata[3]:
         raise ValueError('String exceeds existing raw padding')
-    add(rdata[5] + 8, struct.pack('<I', new_rdata_size), 'Map only the data.pack shadow path in existing raw .rdata padding', True)
+    add(rdata[5] + 8, struct.pack('<I', new_rdata_size), 'Map the shadow path and adjacent reserved adapter100 zero padding within existing raw .rdata', True)
     for address, value, note in [(STUB, loader, 'PIC loader for original mov ebx,[CreateFileW] site'),
                                  (WRAPPER, code, 'Data.pack-only read-only OPEN_EXISTING wrapper, PIC'),
                                  (TABLE, table, 'Exactly one match-table entry; no models/local_en redirects'),
@@ -173,7 +175,7 @@ def main():
     recipe = {
         'id': 'data-pack-redirect',
         'title': ('Read the managed data.pack shadow only' if args.enable else 'DISABLED candidate: read the managed data.pack shadow only'),
-        'description': 'Redirect only read-only OPEN_EXISTING CreateFileW requests whose case-insensitive path suffix is data\\data.pack, with a directory boundary, to UltimatePatch\\data\\data.pack. All models.pack, local_en.pack and other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call the original IAT function. PIC wrapper C4A..D1B, loader C40..C49, one table entry D78..D83; disjoint from naval D20..D76 and rank DA0..DF9. Map only 58 path-string bytes in original raw .rdata padding. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.',
+        'description': 'Redirect only read-only OPEN_EXISTING CreateFileW requests whose case-insensitive path suffix is data\\data.pack, with a directory boundary, to UltimatePatch\\data\\data.pack. All models.pack, local_en.pack and other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call the original IAT function. PIC wrapper C4A..D1B, loader C40..C49, one table entry D78..D83; disjoint from naval D20..D76 and rank DA0..DF9. Store 58 path-string bytes in original raw .rdata padding; map adjacent reserved padding through 0x11793B7F for adapter100. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.',
         'enabled': args.enable,
         'writes': writes,
     }

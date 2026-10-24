@@ -1,0 +1,26 @@
+{
+  "id": "fear-effect-stacking",
+  "title": "Numeric enemy-morale rewards stack on one general without cancelling",
+  "description": "Preserve signed negative scares_men magnitude when constructing unit stats; add to innate fear. Zero and positive legacy flags retain vanilla semantics. Requires matching data sign normalization: Intimidating -4, Dreaded -1/-2; trait/item negatives unchanged. Keep strongest nearby enemy, fear range, horse fear, immunity/routing eligibility and other morale effects unchanged. Experimental until controlled battle comparison.",
+  "enabled": true,
+  "writes": [
+    {
+      "offset": "0x2a4",
+      "expect": "40 00 00 40",
+      "bytes": "40 00 00 60",
+      "note": "Allow execution of the PIC adapter in existing read-only .rdata padding; retain read-only protection (RX, not writable)."
+    },
+    {
+      "va": "0x10152b23",
+      "expect": "85 c0 74 1d 8b ce e8 32 eb a7 00 8d 88 2c 19 00 00 e8 67 b8 06 00 8b 00 f7 d8 89 84 24 9c 00 00 00",
+      "bytes": "e9 08 10 64 01 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90 90",
+      "note": "Retain original ESI restoration; adapt only the scares_men constructor conversion."
+    },
+    {
+      "va": "0x11793b30",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "85 c0 74 3e 78 1f 8b ce e8 23 db 43 ff 8d 88 2c 19 00 00 e8 58 a8 a2 fe 8b 00 f7 d8 89 84 24 9c 00 00 00 eb 1d 99 31 d0 29 d0 79 01 48 03 84 24 9c 00 00 00 71 05 b8 ff ff ff 7f 89 84 24 9c 00 00 00 e9 cd ef 9b fe",
+      "note": "Zero unchanged; positive flags use original KV behavior; negative explicit morale magnitudes add to innate fear with signed-overflow saturation."
+    }
+  ]
+}

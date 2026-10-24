@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.9-fear-test
+
+- Fix the shared enemy-morale effect's opposite signs: both Intimidating levels now contribute -4; ROTS Dreaded uses -1/-2. Trait, Sword and Legendary Menpo numeric values retain their existing negative sign. Other skill effects and FOTS source data stay unchanged.
+- Replace the constructor's flat-four conversion for negative numeric bonuses with their absolute combined magnitude, added to innate fear. Zero and positive legacy fear flags keep vanilla behavior. Retain strongest-nearby-enemy selection, range, eligibility and separate horse fear.
+- War Is Slaughter level 3 + Sword + Intimidating supplies -8, as selected by the user. This also makes the earlier -1/-2/-3 trait progression reach battle stats. The earlier Brave screenshot did not establish that enemy-morale magnitude worked.
+- Private native execution covers 756 constructor/aura cases, alongside the inherited regression checks. Controlled battle comparison remains pending.
+
 ## 0.1.8-traits-test
 
 - Port CE progressive general traits to OG: War Is Slaughter enemy morale -1/-2/-3, Brave local morale +1/+2/+3, Cowardly local morale -1/-2/-3. Exactly six level-2/3 floats change; level 1, Cowardly personal security, thresholds and FOTS rows remain unchanged.
