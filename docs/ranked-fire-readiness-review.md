@@ -1,5 +1,7 @@
 # Ranked fire readiness: resumed review, 2026-10-24
 
+> Continued tracing found the FIRE-specific STOP_STATE gate and corrected the startup-wait explanation below. Read [the firearm STOP-gate findings](ranked-fire-firearm-stop-gate.md) first.
+
 ## Current state checked before continuing
 
 Grok's relevant notes are under `F:\Codex\Shogun-2-Original-Upgrade-Patch\research`: `grokbot_fire_by_rank.md`, `grokbot_rank_fire_SUMMARY.md`, and `grokbot_rankfire_trace_RUN.md`. Reviewed their recorded results, archived recipes and the actual CSV `trace_20261024_103911.csv`.
@@ -26,13 +28,13 @@ The rank predicate `FUN_1017B980` requires this result for every soldier in the 
 ## How the latch becomes ready
 
 1. The rank's preparation method `FUN_10188290` sends a type-5 request through `FUN_103DB8F0`. Its controller constructor calls `FUN_103506F0`, clearing controller+0x10, which aliases soldier+0x308. It also marks the controller active. Keeping an old ready latch does not preserve all the new request's stance side effects.
-2. Before the new controller starts, `FUN_103A9FE0` reads the current sequence through `FUN_10382030`. It waits until **sequence+8 == 1**, then calls `FUN_10392740`. This flag belongs to a sequence object; it is not inherently a timer or proof that an idle clip finished.
+2. `FUN_103A9FE0` contains a wait for **sequence+8 == 1** before calling `FUN_10392740`, but later lifecycle tests show that ordinary type-5 requests already start on entry through `FUN_103828B0`. The update wait belongs to the preliminary-handle path and cannot by itself explain the opening delay. See the continued findings.
 3. After start, the update calls `FUN_1038A5E0(controller, sequence)`. When sequence+8 equals 1, this helper sets the ready latch. Sequence+0x18 values 0/1/2 are also copied to controller+0x1C. Thus sequence completion can unblock readiness without a nonzero action ID.
 4. There is another setter in the soldier update at `0x103D6CB8`: active controller + virtual +0x24 accepting the current action ID sets the latch. For this controller that policy is `FUN_1038A9C0`, accepting 14, 17, 18, 19. The completed-action-12 branch at `0x103D6CF1` is another path. The latch does not exclusively mean one ready animation has played.
 
 ## Further sequence finding
 
-The infantry start implementation `FUN_10391B50` (a soldier virtual +0x1B0 implementation) destroys the previous owned sequence and placement-constructs `FUN_103B9AE0` at soldier+0x250 for modes 0/1. The resulting vtable is `0x115E0FCC`. It is a replacement, not simply an extra item appended to a queue. There are other soldier implementations and a special branch; this finding should not be generalized to every entity class.
+On its no-FIRE-animation fallback, the infantry start implementation `FUN_10391B50` (a soldier virtual +0x1B0 implementation) destroys the previous owned sequence and placement-constructs `FUN_103B9AE0` at soldier+0x250 for modes 0/1. The resulting vtable is `0x115E0FCC`. It is a replacement, not simply an extra item appended to a queue. The FIRE-available branch instead constructs firearm vtable 0x115E10D0 and has its own STOP/START/RELOAD/FINISH state machine. This fallback finding should not be generalized to that path.
 
 That sequence's update is **FUN_103EF1E0**. On its normal mode path it requests stance 8 or 9 through `FUN_103E3D40` and sets sequence+8 only after **soldier+0x1D0 becomes 18 (mode 0) or 19 (mode 1)**. Link/unit eligibility checks can postpone this path; there is also a special alternative completion branch through `FUN_103D8B20` and `FUN_103C9960`. These numeric stance values are verified, but their precise standing/kneeling animation names and the live blocking soldier's sequence class have not been captured.
 
