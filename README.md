@@ -4,7 +4,9 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current development build: **0.1.3-naval-test**, retaining [yari-wall movement](docs/yari-wall-movement.md) and [kneel-fire movement](docs/kneel-fire-movement.md), and adding only the [naval defender AI candidate](docs/naval-defender-ai.md). Native checks pass; in-game verification remains pending. Text-cave support maps the naval adapter; historical gameplay experiments and diagnostics remain disabled. Test builds are staged as prereleases in the private repository.
+Current trial: **0.1.7-rankidle-test**, built from the verified 0.1.3 source baseline. It retains the yari-wall, kneel-movement and naval fixes, and adds only initial ranked-preparation cancellation of named standing idle clips. No replacement data packs or pack redirect are included.
+
+The restored-build battle trace confirmed idle 155 blocking initial readiness. The signed trial passed 15 installer self-tests, the existing yari/kneel/naval native checks and 1,554 rank guard/ABI/STOP/START cases. Signed-package reconstruction matched the tested engine. Patched battle comparison is in progress; this is an experimental prerelease. See [trial details](docs/rank-idle-first-volley.md) and [live baseline evidence](docs/rank-fire-live-baseline.md).
 
 ## Launcher and installer
 
