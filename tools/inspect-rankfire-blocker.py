@@ -179,7 +179,7 @@ class ProcessReader:
         raise OSError("32-bit empire.retail.dll not found in this PID")
 
 
-def task_members(read, task, base):
+def _task_groups_and_current(read, task, base):
     data = read(task, 0x50)
     if preferred(u32(data), base) != 0x115C1048:
         raise ValueError("Task is not the supported OG rank-fire task")
@@ -192,15 +192,31 @@ def task_members(read, task, base):
     if count > 4096:
         raise ValueError("Squad count exceeds bounded scan")
     pointers = read(members, count * 4) if count else b""
-    selected = []
+    groups = {group: [] for group in range(group_count)}
     for index in range(count):
         soldier = u32(pointers, index * 4)
         soldier_id = u32(read(soldier + 0x218, 4))
         if soldier_id > 0x10000:
             raise ValueError("Soldier ID exceeds bounded group-map lookup")
-        if u32(read(mapping + soldier_id * 4, 4)) == current:
-            selected.append(soldier)
-    return current, selected
+        group = u32(read(mapping + soldier_id * 4, 4))
+        if group in groups:
+            groups[group].append(soldier)
+    return current, groups
+
+
+def task_groups(read, task, base):
+    """Return all valid rank cohorts with task_members' vtable/count/ID bounds.
+
+    Reads the member-pointer array once, then only each soldier's four-byte ID
+    and four-byte group-map entry. Unmapped IDs are omitted as in task_members.
+    The result includes empty lists for valid groups with no remaining members.
+    """
+    return _task_groups_and_current(read, task, base)[1]
+
+
+def task_members(read, task, base):
+    current, groups = _task_groups_and_current(read, task, base)
+    return current, groups[current]
 
 
 def validate_task(read, address, base):
@@ -333,6 +349,7 @@ def selftest():
     put(soldier + 0x218, 0); put(0x2218, 1)
     put(mapping, 0); put(mapping + 4, 1)
     assert task_members(read, task, base) == (1, [0x2000])
+    assert task_groups(read, task, base) == {0: [soldier], 1: [0x2000]}
     # Discovery requires realistic minimum pointers, unlike the tiny membership
     # fixture above. Place two task-like vtable matches, one with invalid fields.
     large = bytearray(0x80000)
