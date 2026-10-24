@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current development build: **0.1.2-kneel-test**, retaining the [yari-wall movement candidate](docs/yari-wall-movement.md) and adding only [kneel-fire movement](docs/kneel-fire-movement.md). Native checks pass; in-game verification remains pending. Historical experiments and diagnostics remain disabled. Test builds are staged as prereleases in the private repository.
+Current development build: **0.1.3-naval-test**, retaining [yari-wall movement](docs/yari-wall-movement.md) and [kneel-fire movement](docs/kneel-fire-movement.md), and adding only the [naval defender AI candidate](docs/naval-defender-ai.md). Native checks pass; in-game verification remains pending. Text-cave support maps the naval adapter; historical gameplay experiments and diagnostics remain disabled. Test builds are staged as prereleases in the private repository.
 
 ## Launcher and installer
 

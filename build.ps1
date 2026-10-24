@@ -131,6 +131,18 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\060-kneel
     if ($LASTEXITCODE -ne 0) { throw 'Kneel eligibility tests failed.' }
 }
 
+if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\070-naval-defender-ai.json') -Raw | ConvertFrom-Json).enabled) {
+    Step 'Naval defender native x86 factory checks'
+    $navalTest = Join-Path $build 'test-naval-factory.exe'
+    $cmd = "`"$vcvars`" x86 >nul && cl /nologo /TP /O2 /W4 /WX `"$root\tools\test-naval-factory.c`" " +
+           "/Fo:`"$build\test-naval-factory.obj`" /Fe:`"$navalTest`""
+    cmd /c $cmd | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Naval factory-test build failed.' }
+    & $navalTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'naval-factory-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Naval factory tests failed.' }
+}
+
 Step 'Package'
 $zip = Join-Path $dist 'Shogun2UltimatePatch_Installer.zip'
 Remove-Item $zip -ErrorAction SilentlyContinue
