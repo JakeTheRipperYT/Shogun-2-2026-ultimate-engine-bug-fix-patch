@@ -28,6 +28,8 @@ Each `engine/*.json` file is one patch to `empire.retail.dll` (32-bit, image bas
 
 ### Code caves
 
+Current active layout: recipe 000 maps through VA 0x115A0D77, and recipe 070 places the 87-byte naval defender adapter at 0x115A0D20. The historical siege recipes remain disabled and their reserved stub ranges remain zero. The following description of the early stub layout is historical.
+
 New code goes in the zero padding at the end of `.text` (starting at VA `0x115A0C40`, 0x1C0 bytes). `000-text-cave.json` grows `.text` VirtualSize (header file offset `0x260`) so the loader maps it, and lists the current stub layout. When you add a stub, append it after the last one and extend the size there. Keep cave code position-independent (relative calls and jumps only), because the engine DLL can be relocated.
 
 `build.ps1` writes the patched DLL to `build\dev\empire.retail.dll` for checking in Ghidra or x32dbg. The signed release stores only the byte differences against vanilla. The installer re-applies them to each player's own vanilla DLL and verifies the result by SHA-256.

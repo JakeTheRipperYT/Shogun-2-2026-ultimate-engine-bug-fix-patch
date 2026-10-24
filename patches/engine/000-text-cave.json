@@ -1,14 +1,14 @@
 {
   "id": "text-cave",
-  "title": "Map the engine's .text padding for patch code",
-  "description": "Grows .text VirtualSize so the loader maps the zero padding after the original code (VA 0x115A0C40 onwards, 0x1C0 bytes available), where other patches place stubs. This patch is the only one allowed to write the header field. When a new stub is added, extend the size here to cover it. Current layout: 0x115A0C40-0x115A0C63 siege-route-reissue, 0x115A0C70-0x115A0C80 route-budget-reset, 0x115A0C90-0x115A0D0B keep-pending-route.",
-  "enabled": false,
+  "title": "Map code padding for the naval defender adapter",
+  "description": "Maps only through the naval adapter at VA 0x115A0D20. Historical siege stubs remain disabled and their reserved bytes stay zero. No other gameplay fix is enabled by this support recipe.",
+  "enabled": true,
   "writes": [
     {
       "offset": "0x260",
-      "expect": "3E FC 59 01",
-      "bytes": "0C FD 59 01",
-      "note": ".text VirtualSize 0x159FC3E -> 0x159FD0C"
+      "expect": "3e fc 59 01",
+      "bytes": "77 fd 59 01",
+      "note": "Grow .text VirtualSize within existing executable raw padding; no file or section growth"
     }
   ]
 }
