@@ -1,0 +1,14 @@
+{
+  "id": "exp-wall-route-invalidation",
+  "title": "EXPERIMENT (falsified 2026-10-18): soldier deaths on walls no longer invalidate every route through the wall",
+  "description": "Siege lock-up investigation. Soldier event handler FUN_103dce90 (vtable method shared by all soldier classes) increments the navigation version of the building the unit stands on (building+0x2a0 -> +0x78) on every event. Every soldier's route records the versions of the region objects it crosses (FUN_10394e80 -> holder+0x20/+0x40). FUN_1038bfb0, called at the top of the soldier movement state machine FUN_103df3f0, compares them each tick; any mismatch drops a following soldier (state 4/5) back to state 1 and forces a fresh route request that bypasses reuse and is appended to the tail of the cached-route queue (FUN_10385fd0, class 2). The queue is serviced FIFO with a work budget of 500 per update (FUN_103aac30). Hypothesis: constant wall casualties during an assault keep invalidating every route touching the wall, so soldiers cycle into a queue thousands deep. This removes only the increment; building+0xd90 accounting and everything else in the handler are unchanged. Verify with tools/siege_sampler.py.",
+  "enabled": false,
+  "writes": [
+    {
+      "va": "0x103DD561",
+      "expect": "FF 40 78",
+      "bytes": "0F 1F 00",
+      "note": "inc dword ptr [eax+0x78] -> 3-byte nop"
+    }
+  ]
+}
