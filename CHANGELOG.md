@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.10-fear-values-test
+
+- Apply the user's revised War Is Slaughter/Bloodthirsty/Blood Soaked progression: -4/-5/-6 enemy morale.
+- Sword of Amaterasu and the Dreaded Force effect bundle now each contribute -4. Both Intimidating levels remain -4.
+- Retain the 0.1.9 engine unchanged, including numeric stacking. Preserve Brave/Cowardly progression, Legendary Menpo -1, ROTS Dreaded -1/-2, FOTS data and other reward effects.
+- Exactly five float fields change relative to 0.1.9; thirteen guarded same-size writes reconstruct the private pack from vanilla. No pack headers, row counts, indexes or file sizes change.
+
 ## 0.1.9-fear-test
 
 - Fix the shared enemy-morale effect's opposite signs: both Intimidating levels now contribute -4; ROTS Dreaded uses -1/-2. Trait, Sword and Legendary Menpo numeric values retain their existing negative sign. Other skill effects and FOTS source data stay unchanged.

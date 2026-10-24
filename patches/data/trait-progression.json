@@ -1,14 +1,20 @@
 {
   "id": "trait-progression-and-fear",
   "title": "Progressive traits and additive numeric fear rewards",
-  "description": "Keep the six validated progressive trait float changes. Normalize both Intimidating levels to -4 and ROTS Dreaded levels to -1/-2 so every vanilla mod_unit_morale_enemy contribution has a consistent sign. The paired engine adapter preserves the numeric sum in battle instead of replacing it with flat fear. Sword/Mask remain -1, other traits/skills, FOTS and all archive structure remain unchanged.",
+  "description": "User-selected values: War Is Slaughter/Bloodthirsty/Blood Soaked -4/-5/-6, Sword of Amaterasu -4, Dreaded Force bundle -4. Keep both Intimidating levels -4, ROTS Dreaded -1/-2, Legendary Menpo -1 and prior Brave/Cowardly progression. Paired engine adapter preserves their combined numeric magnitude. Other effects, FOTS data and every archive structure byte remain unchanged.",
   "enabled": true,
   "source": "data/data.pack",
   "destination": "data/data.pack",
   "sourceSha256": "6596d4f5e51f3a95c79a90df782d9ef53c850e30c46bbbf9b0d2444f3668670a",
   "length": 2565173720,
-  "sha256": "bade4ee874f0195ce612200a2c8d39159de65d0f1b4f0cdc98467f495c38eef8",
+  "sha256": "c48510bc7ad4a98d411f486922e432bea64e253b9e9832a48c1d9dc40c6a91c4",
   "writes": [
+    {
+      "offset": "0x466cdd9c",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 80 c0",
+      "note": "s2anc_artefact_myth_sword_amateratsu: -1 -> -4 enemy morale"
+    },
     {
       "offset": "0x46b1a005",
       "expect": "00 00 80 3f",
@@ -34,16 +40,28 @@
       "note": "general_intimidating level 2: 1 -> -4; use negative numeric fear, retaining Intimidating magnitude 4"
     },
     {
+      "offset": "0x46c1e705",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 80 c0",
+      "note": "p_dreaded_force: -1 -> -4 enemy morale"
+    },
+    {
+      "offset": "0x4724f760",
+      "expect": "00 00 80 bf",
+      "bytes": "00 00 80 c0",
+      "note": "Bloodthirsty level 1: -1 -> -4"
+    },
+    {
       "offset": "0x4724f7d0",
       "expect": "00 00 80 bf",
-      "bytes": "00 00 00 c0",
-      "note": "S2_trait_general_bloodthirsty_2 / mod_unit_morale_enemy: -1 -> -2"
+      "bytes": "00 00 a0 c0",
+      "note": "Bloodthirsty level 2: -1 -> -5"
     },
     {
       "offset": "0x4724f840",
       "expect": "00 00 80 bf",
-      "bytes": "00 00 40 c0",
-      "note": "S2_trait_general_bloodthirsty_3 / mod_unit_morale_enemy: -1 -> -3"
+      "bytes": "00 00 c0 c0",
+      "note": "Bloodthirsty level 3: -1 -> -6"
     },
     {
       "offset": "0x4724f904",

@@ -42,7 +42,7 @@ public sealed class ReleaseVersion : IComparable<ReleaseVersion> {
 public sealed class OnlineRelease { public string Version, DownloadUrl; public long Size; }
 
 public static class OnlineUpdates {
-    public const string AppVersion = "0.1.9-fear-test";
+    public const string AppVersion = "0.1.10-fear-values-test";
     public const string Repository = "JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch";
     public const string ApiUrl = "https://api.github.com/repos/" + Repository + "/releases?per_page=100";
     public const string DownloadPrefix = "https://github.com/" + Repository + "/releases/download/";
