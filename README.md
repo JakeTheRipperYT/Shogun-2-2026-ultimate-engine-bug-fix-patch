@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.11-collection-test**. Adds the user-selected UI colours, loading screens, Oda banner, naval corrections, Kisho statistics with 2 ammo for every ninja variant, infantry fatigue, Heavy Bune oars, matchlock officers, bow accuracy links and Ikko monk recruitment XP. Existing engine fixes and progressive fear/trait values remain enabled. See [selected changes and exclusions](docs/selected-collection-0.1.11.md). Gameplay validation remains pending.
+Current trial: **0.1.12-unit-access-test**. Adds Yari Square links for Yari Samurai variants using the existing campaign and custom-battle unlocks, Rapid Advance for Yari Ronin, and Warrior Nun recruitment/roster access for Ikko Ikki. The Ikko copy retains original costs, caps, combat stats and appearance while preserving other clans' religion rules. See [unit access details](docs/unit-access-0.1.12.md). All [selected collection fixes](docs/selected-collection-0.1.11.md), prior engine fixes and current trait/fear values remain. In-game validation is pending.
 
 ## Launcher and installer
 

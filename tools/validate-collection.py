@@ -128,6 +128,51 @@ def main():
         r=naval_bykey[key]
         require(math.isclose(r['water_bail_out_modifier'],.1,abs_tol=1e-7),'Sinking bailing resolution')
         require(math.isclose(r['side_panels_above_water_1_top_critical'],.25,abs_tol=1e-7),'Sinking hull resolution')
+    # Independently construct the three requested unit-access changes from vanilla.
+    # Do not import or execute the builder's unit-access module.
+    spear_units={'Inf_Spear_Yari_Samurai','Inf_Spear_Yari_Samurai_Hattori',
+                 'Inf_Spear_Yari_Samurai_Dojo','Inf_Spear_Yari_Samurai_MP'}
+    unit_abilities=source_table('unit_to_unit_abilities_junctions')[3]
+    before_abilities=len(unit_abilities)
+    add_rows('unit_to_unit_abilities_junctions',[dict(unit_name=k,ability='pike_square_formation') for k in ('Inf_Spear_Yari_Samurai','Inf_Spear_Yari_Samurai_Hattori','Inf_Spear_Yari_Samurai_Dojo','Inf_Spear_Yari_Samurai_MP')])
+    add_rows('unit_to_unit_abilities_junctions',[dict(unit_name='Inf_Spear_Yari_Ronin',ability='rapid_advance')])
+    require(len(unit_abilities)==before_abilities+5,'Five requested ability links')
+    ability_defs=source_table('unit_abilities')[3]
+    square=next(r for r in ability_defs if r['key']=='pike_square_formation')
+    require(square['requires_effect_enabling'],'Campaign square remains effect-gated')
+    require(not next(r for r in ability_defs if r['key']=='rapid_advance')['requires_effect_enabling'],'Rapid Advance remains ungated')
+    effect_links=source_table('effect_bonus_value_unit_ability_junctions')[3]
+    require(dict(effect='tech_enable_pike_square',bonus_value_id='enable',unit_ability='pike_square_formation') in effect_links,'Square enable effect')
+    technology_effects=source_table('technology_effects_junction')[3]
+    for tech in ('shogun_military_spear_spear_expertise','shogun_custom_battle_tech'):
+        require(dict(technology=tech,effect='tech_enable_pike_square',value=1.0) in technology_effects,'Square campaign/custom-battle unlock')
+    base_nun='Inf_Heavy_Warrior_Nuns'; ikko_nun=base_nun+'_Ikko_Ikki'
+    units=source_table('units')[3]; base=next(r for r in units if r['key']==base_nun)
+    require(base['religion_requirement']=='rel_buddhist','Original Nun religion stays Buddhist')
+    require(base['mp_available_early'] and base['mp_available_middle'] and base['mp_available_late'],'Nun multiplayer eras')
+    expected_unit=dict(base,key=ikko_nun,unique_index=max(r['unique_index'] for r in units)+1,
+                       religion_requirement='rel_ikko',in_encyclopedia=False)
+    add_rows('units',[expected_unit])
+    add_rows('unit_stats_land',[dict(land_bykey[base_nun],key=ikko_nun)])
+    uniform=source_table('uniforms')[3]; base_uniform=next(r for r in uniform if r['Unit']==base_nun)
+    add_rows('uniforms',[dict(base_uniform,Unit=ikko_nun,Uniform_Name='Default_Warrior_Nuns_Ikko_Ikki')])
+    add_rows('units_to_groupings_military_permissions',[dict(unit=ikko_nun,military_group='ikko_ikki')])
+    add_rows('units_to_exclusive_faction_permissions',[dict(key=ikko_nun,faction='ikko_ikki',allowed=True)])
+    recruits=source_table('building_units_allowed')[3]; first_key=max(r['key'] for r in recruits)+1
+    temple_pairs=[('SHO_Buddhist_3_Temple_Complex','SHO_Ikko_Temple_3_Jodo_Shinshu_Fortified_Monastery'),
+                  ('SHO_Buddhist_4_Legendary_Temple','SHO_Ikko_Temple_4_Jodo_Shinshu_Honganji')]
+    building_tech=source_table('building_level_required_technology_junctions')[3]
+    for i,(standard,ikko) in enumerate(temple_pairs):
+        standard_tech={r['technology_key'] for r in building_tech if r['building_level_key']==standard}
+        ikko_tech={r['technology_key'] for r in building_tech if r['building_level_key']==ikko}
+        require(standard_tech==ikko_tech and len(ikko_tech)==1,'Equal temple technology tier')
+        source=next(r for r in recruits if r['unit']==base_nun and r['building']==standard)
+        add_rows('building_units_allowed',[dict(source,unit=ikko_nun,building=ikko,key=first_key+i)])
+    quality=source_table('cdir_unit_qualities')[3]
+    matching=[dict(r,unit_key=ikko_nun) for r in quality if r['unit_key']==base_nun]
+    require(len(matching)==7,'Nun AI quality config coverage')
+    add_rows('cdir_unit_qualities',matching)
+
     for table,(path,prefix,fields,rows,raw) in table_cache.items():
         new=c.encode(prefix,fields,rows)
         if new!=raw: expected['data.pack'][path]=new
@@ -172,6 +217,12 @@ def main():
     require(len(colours)==93,'Exactly 93 colour-only edits')
     expected['local_en.pack'][locpath]=c.encode_loc(version,rows)
 
+    unit_loc='text\\db\\units.loc'
+    version,unit_names=c.loc(c.read(pack,ix,unit_loc))
+    source_name=next(r for r in unit_names if r['key']=='units_on_screen_name_Inf_Heavy_Warrior_Nuns')
+    unit_names.append(dict(source_name,key='units_on_screen_name_Inf_Heavy_Warrior_Nuns_Ikko_Ikki'))
+    expected['local_en.pack'][unit_loc]=c.encode_loc(version,unit_names)
+
     receipts=[]; unchanged_bytes=0
     for packname,(source,oldix) in originals.items():
         built=a.built_dir/'data'/packname
@@ -204,7 +255,8 @@ def main():
     report=dict(result='pass',packs=receipts,tables=details,ninjaVariants=sorted(ninja_keys),ninjaAmmo=2,
                 colours=93,loadingImages=12,modelAssets=12,traitWrites=len(recipe['writes']),
                 unchangedBytesCompared=unchanged_bytes,vanillaModified=False,
-                excluded=['Lua scripts','Tercios','replacement unit IDs','audio','non-colour localisation','collection general traits'],
+                unitAccess=dict(squareUnits=sorted(spear_units),campaignSquareArt='Spear Expertise',customBattleSquareDefault=True,rapidAdvance='Inf_Spear_Yari_Ronin',ikkoNun=ikko_nun,templeTier=3,templeTechnology='Scholarship',newAbilityLinks=5,newRecruitmentRows=2),
+                excluded=['Lua scripts','Tercios','replacement ninja IDs','audio changes','unrelated localisation','collection general traits'],
                 gameplayValidation='pending player testing')
     a.report.parent.mkdir(parents=True,exist_ok=True)
     a.report.write_text(json.dumps(report,indent=2)+'\n',encoding='utf8')

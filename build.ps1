@@ -25,6 +25,10 @@ $root = $PSScriptRoot
 $build = Join-Path $root 'build'
 $dist = Join-Path $root 'dist'
 New-Item -ItemType Directory -Force $build, $dist | Out-Null
+# Keep compiler and self-test temporary files alongside this F: workspace.
+$env:TEMP = Join-Path $build 'test-temp'
+$env:TMP = $env:TEMP
+New-Item -ItemType Directory -Force $env:TEMP | Out-Null
 
 function Step($text) { Write-Host "==> $text" -ForegroundColor Cyan }
 function Run($exe, [string[]]$arguments) {

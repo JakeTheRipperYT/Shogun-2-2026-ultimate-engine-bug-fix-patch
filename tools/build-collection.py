@@ -189,7 +189,11 @@ def selected(game, collection):
     assert color_count==93
     changes['local_en.pack'][lp]=encode_loc(version,rows)
     assert loc(changes['local_en.pack'][lp])[1]==rows
-    return packs,changes,dict(tables=audit,ninjaAmmo={r['key']:r['ammo'] for r in ninjas},colorRows=color_count,assets=[p for c in changes.values() for p in c if not p.startswith(('db\\','text\\'))])
+    unit_spec=importlib.util.spec_from_file_location('unit_access',ROOT/'tools/unit-access.py')
+    unit_access=importlib.util.module_from_spec(unit_spec);unit_spec.loader.exec_module(unit_access)
+    import types
+    unit_audit=unit_access.apply(types.SimpleNamespace(**globals()),packs,changes)
+    return packs,changes,dict(unitAccess=unit_audit,tables=audit,ninjaAmmo={r['key']:r['ammo'] for r in ninjas},colorRows=color_count,assets=[p for c in changes.values() for p in c if not p.startswith(('db\\','text\\'))])
 
 def digest(path):
     with path.open('rb') as f: return hashlib.file_digest(f,'sha256').hexdigest()

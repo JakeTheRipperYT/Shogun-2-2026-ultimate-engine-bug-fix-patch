@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.12-unit-access-test
+
+- Give Yari Samurai variants Yari Square via existing Spear Expertise/custom-battle unlocks; give Yari Ronin Rapid Advance.
+- Add an isolated Ikko Warrior Nun variant to tier-3/4 Ikko temple recruitment and the Ikko custom-battle roster. Preserve the original unit, other clans' religion rules, costs, caps and combat stats.
+- Preserve prior fixes; add independent unit-access and research-tier validation. Keep developer/compiler/test outputs on F:. See [details and testing limits](docs/unit-access-0.1.12.md).
+
 ## 0.1.11-collection-test
 
 - Integrate only the selected collection fixes; see [scope and attribution](docs/selected-collection-0.1.11.md). Keep original ninja IDs and set all eight variants to 2 ammo. Preserve current progressive traits and fear values.
