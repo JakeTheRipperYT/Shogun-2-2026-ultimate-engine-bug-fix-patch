@@ -1,0 +1,20 @@
+{
+  "id": "naval-defender-attack-group",
+  "title": "Naval AI: use the normal naval attack group for defenders (test candidate)",
+  "description": "Redirect only defender factory FUN_104D15D0 call at 0x104D1636 from holding ctor FUN_10546690 to a position-independent adapter at 0x115A0D20. It selects default parent+144 or first opposing group with ships using analyzer parent+30, count+158, array+15C, group ships+48 and ID+68, matching native attacker factory FUN_104D09F0. Calls attack ctor FUN_101CA070, preserving the 0x4C allocation, ECX destination, battle reference, parent, nonvolatile registers and original ret-8 ABI. See docs/naval-defender-ai.md. Requires 000-text-cave; historical experiments remain disabled.",
+  "enabled": true,
+  "writes": [
+    {
+      "va": "0x115a0d20",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "53 56 57 8b d9 8b 44 24 14 8b 90 44 01 00 00 8b 48 30 8b b9 58 01 00 00 8b b1 5c 01 00 00 85 ff 0f 84 1e 00 00 00 8b 0e 83 79 48 00 0f 85 0f 00 00 00 83 c6 04 4f 0f 85 ea ff ff ff e9 03 00 00 00 8b 51 68 52 50 ff 74 24 18 8b cb e8 ff 92 c2 fe 5f 5e 5b c2 08 00",
+      "note": "Native x86 target/argument adapter; relative branches/call only"
+    },
+    {
+      "va": "0x104d1636",
+      "expect": "e8 55 50 07 00",
+      "bytes": "e8 e5 f6 0c 01",
+      "note": "Only holding-group factory call redirected; allocator and other factory branches unchanged"
+    }
+  ]
+}

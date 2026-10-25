@@ -1,0 +1,14 @@
+{
+  "id": "kneel-fire-movement",
+  "title": "Kneel fire: accept movement orders while the ability remains enabled (test candidate)",
+  "description": "Ports CE's isolated movement eligibility fix. OG name table at 0x115B3D60 maps kneel_fire_ability to 0x39. FUN_1015C3F0 queries ability 0x39 through unit+0xED4 vtable+4, and JNE at 0x1015C408 rejects movement immediately when active. NOP only that two-byte branch. Continue through the original phase check FUN_10180600, current action's virtual eligibility at +0xDC, and final eligibility FUN_1015CB40. No firing drill, ability state, reload, fire-by-rank logic or combat stat is changed. See docs/kneel-fire-movement.md for evidence, native checks and remaining in-game validation.",
+  "enabled": true,
+  "writes": [
+    {
+      "va": "0x1015C408",
+      "expect": "75 45",
+      "bytes": "90 90",
+      "note": "Remove only JNE to the shared false return after the kneel-fire ability check; retain all later restrictions"
+    }
+  ]
+}
