@@ -2022,5 +2022,114 @@
         "key": false
       }
     ]
+  },
+  "agents_tables": {
+    "5": [
+      {
+        "name": "key",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "move_points",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "line_of_sight",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "zone_of_control",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "playable",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "portrait_override",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "is_spawnable",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "primary_attribute",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "religion",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "faction_total_cap",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "faction_cap_lower_bound",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "cost",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "audio_selected",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_move",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_move_complete",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_move_complete_can_move_again",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_move_illegal",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_embark",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_disembark",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_death",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "VO_actor_numbers",
+        "type": "StringU16",
+        "key": false
+      }
+    ]
   }
 }

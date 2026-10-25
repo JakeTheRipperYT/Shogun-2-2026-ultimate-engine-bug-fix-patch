@@ -188,6 +188,24 @@ def main():
     require(parrott['gun_type']=='howitzer','Original Parrott gun type remains unchanged')
     parrott['launch_particle_effect']='Cannon_common_shot_lrg'
 
+    # Requested campaign parity: exactly one recruitment row and two base budgets.
+    recruits=source_table('building_units_allowed')[3]
+    medium='Medium_Ship_Medium_Bune';mori_medium=medium+'_Mori'
+    harbour='SHO_Port_1_Harbour'
+    require(not any(r['unit']==mori_medium and r['building']==harbour for r in recruits),'Mori Harbour source row missing')
+    harbour_template=next(r for r in recruits if r['unit']==medium and r['building']==harbour)
+    harbour_key=max(r['key'] for r in recruits)+1
+    add_rows('building_units_allowed',[dict(harbour_template,unit=mori_medium,key=harbour_key)])
+    require({r['building'] for r in recruits if r['unit']==medium}=={r['building'] for r in recruits if r['unit']==mori_medium},'Equal Medium Bune recruitment port sets')
+    ship=next(r for r in units if r['key']=='Galleon_Caravel_Mori')
+    reference=next(r for r in units if r['key']=='Galleon_Caravel')
+    require(ship['campaign_action_points']==40 and reference['campaign_action_points']==65,'Original Nanban movement budgets')
+    ship['campaign_action_points']=65
+    agents=source_table('agents')[3]
+    ikko=next(r for r in agents if r['key']=='ikko_monk');regular=next(r for r in agents if r['key']=='monk')
+    require(ikko['move_points']==20 and regular['move_points']==30,'Original monk movement budgets')
+    ikko['move_points']=30
+
     for table,(path,prefix,fields,rows,raw) in table_cache.items():
         new=c.encode(prefix,fields,rows)
         if new!=raw: expected['data.pack'][path]=new
@@ -270,6 +288,7 @@ def main():
     report=dict(result='pass',packs=receipts,tables=details,ninjaVariants=sorted(ninja_keys),ninjaAmmo=2,
                 colours=93,loadingImages=12,modelAssets=12,traitWrites=len(recipe['writes']),
                 unchangedBytesCompared=unchanged_bytes,vanillaModified=False,
+                campaignParity=dict(moriPort=harbour,moriRecruitmentKey=harbour_key,nanbanMovement=65,ikkoMonkMovement=30),
                 parrottSmoke=dict(projectile='boshin_parrot_gun_shell',field='launch_particle_effect',effect='Cannon_common_shot_lrg',changedFields=1,combatStatsPreserved=True),
                 unitAccess=dict(squareUnits=sorted(spear_units),campaignSquareArt='Spear Expertise',customBattleSquareDefault=True,rapidAdvance='Inf_Spear_Yari_Ronin',ikkoNun=ikko_nun,templeTier=3,templeTechnology='Scholarship',newAbilityLinks=5,newRecruitmentRows=2),
                 excluded=['Lua scripts','Tercios','replacement ninja IDs','audio changes','unrelated localisation','collection general traits'],

@@ -13,3 +13,5 @@ Current authorized exception: the user explicitly selected the collection bundle
 The user also explicitly authorized the three unit-access changes in docs/unit-access-0.1.12.md together. Preserve prior fixes and ninja ammo2. Canonical local workspace is on F:; all build/test temp files and retained artifacts must remain there.
 
 Current focused task: user explicitly requests the Armstrong smoke effect for FOTS Parrott guns. Change only the missing launch_particle_effect reference; do not import collection gun_type/audio edits. User confirmed 0.1.12 works.
+
+User-authorized 0.1.14 scope: Mori Medium Bune Harbour recruitment, Mori Nanban base campaign AP65, Ikko monk base AP30, as documented in docs/campaign-parity-0.1.14.md. Preserve all prior fixes and normal campaign bonus calculations.

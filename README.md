@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.13-parrott-smoke-test**. Restores the FOTS Parrott gun's missing firing smoke using the Armstrong gun's existing effect. Exactly one projectile field changes; ballistics, gun type and audio stay unchanged. See [smoke investigation](docs/parrott-smoke-0.1.13.md). The user confirmed the previous [Yari/Ikko unit access changes](docs/unit-access-0.1.12.md) work. All [selected collection fixes](docs/selected-collection-0.1.11.md), engine patches and current trait/fear values remain enabled. Smoke appearance awaits an in-game firing test.
+Current trial: **0.1.14-campaign-parity-test**. Restores Mori Medium Bune recruitment at the Harbour, raises Mori Nanban Trade Ship base campaign movement from40 to65, and raises Ikko monk base movement from20 to30. See [campaign parity details](docs/campaign-parity-0.1.14.md). All earlier engine/data fixes remain enabled. In-game recruitment and movement validation is pending.
 
 [Full cumulative changelog](docs/full-changelog.md).
 

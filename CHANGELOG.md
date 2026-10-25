@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.14-campaign-parity-test
+
+- Add the missing Mori Medium Bune Harbour recruitment row, matching the ordinary variant's earliest port tier.
+- Raise Mori Nanban Trade Ship base campaign movement from40 to65, matching the Nanban ship available to Otomo.
+- Raise Ikko monk agent base movement from20 to30, matching regular monks.
+- Preserve all earlier fixes, existing higher-port recruitment, combat stats and normal campaign bonuses. See [details](docs/campaign-parity-0.1.14.md).
+
 ## 0.1.13-parrott-smoke-test
 
 - Restore missing FOTS Parrott firing smoke using the Armstrong gun's existing Cannon_common_shot_lrg effect. Exactly one projectile field changes; preserve gun type, sound, ballistics and combat stats. Both campaign/custom and Avatar Parrott variants use the corrected projectile.

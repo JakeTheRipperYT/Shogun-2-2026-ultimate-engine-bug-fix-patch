@@ -30,3 +30,6 @@
 - Make Install/Update reconstruct private data.pack, models.pack and English localisation packs from the player’s original files.
 - Add signed reconstruction packages, installer compatibility checks, verified installation, rollback handling and ownership-protected uninstall.
 - Move development files, compiler/test temporary files, retained build artifacts and previous-build backups to F:.
+- Add Mori Medium Bune recruitment at the Harbour, matching the ordinary variant’s earliest recruitment port.
+- Increase Mori Nanban Trade Ship base campaign movement from **40 to 65**, matching the Nanban ship available to Otomo.
+- Increase Ikko monk agent base movement from **20 to 30**, matching regular monks.

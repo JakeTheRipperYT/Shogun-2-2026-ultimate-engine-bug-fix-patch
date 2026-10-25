@@ -209,7 +209,10 @@ def selected(game, collection):
     unit_access=importlib.util.module_from_spec(unit_spec);unit_spec.loader.exec_module(unit_access)
     import types
     unit_audit=unit_access.apply(types.SimpleNamespace(**globals()),packs,changes)
-    return packs,changes,dict(parrottSmoke=dict(projectile='boshin_parrot_gun_shell',field='launch_particle_effect',effect='Cannon_common_shot_lrg'),unitAccess=unit_audit,tables=audit,ninjaAmmo={r['key']:r['ammo'] for r in ninjas},colorRows=color_count,assets=[p for c in changes.values() for p in c if not p.startswith(('db\\','text\\'))])
+    parity_spec=importlib.util.spec_from_file_location('campaign_parity',ROOT/'tools/campaign-parity.py')
+    parity=importlib.util.module_from_spec(parity_spec);parity_spec.loader.exec_module(parity)
+    parity_audit=parity.apply(types.SimpleNamespace(**globals()),packs,changes)
+    return packs,changes,dict(campaignParity=parity_audit,parrottSmoke=dict(projectile='boshin_parrot_gun_shell',field='launch_particle_effect',effect='Cannon_common_shot_lrg'),unitAccess=unit_audit,tables=audit,ninjaAmmo={r['key']:r['ammo'] for r in ninjas},colorRows=color_count,assets=[p for c in changes.values() for p in c if not p.startswith(('db\\','text\\'))])
 
 def digest(path):
     with path.open('rb') as f: return hashlib.file_digest(f,'sha256').hexdigest()
