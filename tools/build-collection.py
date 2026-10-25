@@ -189,11 +189,27 @@ def selected(game, collection):
     assert color_count==93
     changes['local_en.pack'][lp]=encode_loc(version,rows)
     assert loc(changes['local_en.pack'][lp])[1]==rows
+    # Restore the missing Parrott firing-smoke reference, exactly matching Armstrong.
+    projectile_path='db\\projectiles_tables\\projectiles'
+    ds,(_,dix)=packs['data.pack']
+    raw=read(ds,dix,projectile_path)
+    prefix,fs,projectiles=decode(raw,'projectiles_tables')
+    assert encode(prefix,fs,projectiles)==raw
+    parrott=next(r for r in projectiles if r['key']=='boshin_parrot_gun_shell')
+    armstrong=next(r for r in projectiles if r['key']=='boshin_armstrong_gun_shell')
+    assert parrott['launch_particle_effect'] is None
+    assert armstrong['launch_particle_effect']=='Cannon_common_shot_lrg'
+    effect_path='db\\particle_effects_tables\\particle_effects'
+    effects=decode(read(ds,dix,effect_path),'particle_effects_tables')[2]
+    assert dict(key=armstrong['launch_particle_effect']) in effects
+    parrott['launch_particle_effect']=armstrong['launch_particle_effect']
+    changes['data.pack'][projectile_path]=encode(prefix,fs,projectiles)
+
     unit_spec=importlib.util.spec_from_file_location('unit_access',ROOT/'tools/unit-access.py')
     unit_access=importlib.util.module_from_spec(unit_spec);unit_spec.loader.exec_module(unit_access)
     import types
     unit_audit=unit_access.apply(types.SimpleNamespace(**globals()),packs,changes)
-    return packs,changes,dict(unitAccess=unit_audit,tables=audit,ninjaAmmo={r['key']:r['ammo'] for r in ninjas},colorRows=color_count,assets=[p for c in changes.values() for p in c if not p.startswith(('db\\','text\\'))])
+    return packs,changes,dict(parrottSmoke=dict(projectile='boshin_parrot_gun_shell',field='launch_particle_effect',effect='Cannon_common_shot_lrg'),unitAccess=unit_audit,tables=audit,ninjaAmmo={r['key']:r['ammo'] for r in ninjas},colorRows=color_count,assets=[p for c in changes.values() for p in c if not p.startswith(('db\\','text\\'))])
 
 def digest(path):
     with path.open('rb') as f: return hashlib.file_digest(f,'sha256').hexdigest()

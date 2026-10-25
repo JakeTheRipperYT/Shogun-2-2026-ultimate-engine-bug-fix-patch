@@ -11,3 +11,5 @@ Standing user instruction: after preparing and validating each new patch build, 
 Current authorized exception: the user explicitly selected the collection bundle documented in docs/selected-collection-0.1.11.md. Implement that selection together; preserve existing ninja IDs and all ninja ammo 2. Do not expand to the excluded collection changes.
 
 The user also explicitly authorized the three unit-access changes in docs/unit-access-0.1.12.md together. Preserve prior fixes and ninja ammo2. Canonical local workspace is on F:; all build/test temp files and retained artifacts must remain there.
+
+Current focused task: user explicitly requests the Armstrong smoke effect for FOTS Parrott guns. Change only the missing launch_particle_effect reference; do not import collection gun_type/audio edits. User confirmed 0.1.12 works.

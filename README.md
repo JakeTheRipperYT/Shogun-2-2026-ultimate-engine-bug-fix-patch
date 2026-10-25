@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.12-unit-access-test**. Adds Yari Square links for Yari Samurai variants using the existing campaign and custom-battle unlocks, Rapid Advance for Yari Ronin, and Warrior Nun recruitment/roster access for Ikko Ikki. The Ikko copy retains original costs, caps, combat stats and appearance while preserving other clans' religion rules. See [unit access details](docs/unit-access-0.1.12.md). All [selected collection fixes](docs/selected-collection-0.1.11.md), prior engine fixes and current trait/fear values remain. In-game validation is pending.
+Current trial: **0.1.13-parrott-smoke-test**. Restores the FOTS Parrott gun's missing firing smoke using the Armstrong gun's existing effect. Exactly one projectile field changes; ballistics, gun type and audio stay unchanged. See [smoke investigation](docs/parrott-smoke-0.1.13.md). The user confirmed the previous [Yari/Ikko unit access changes](docs/unit-access-0.1.12.md) work. All [selected collection fixes](docs/selected-collection-0.1.11.md), engine patches and current trait/fear values remain enabled. Smoke appearance awaits an in-game firing test.
 
 ## Launcher and installer
 

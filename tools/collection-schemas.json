@@ -1785,5 +1785,242 @@
         "key": true
       }
     ]
+  },
+  "projectiles_tables": {
+    "5": [
+      {
+        "name": "key",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "category",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "shot_type",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "missile_type",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "missile_model",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "explosion_type",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "trail",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "spin_type",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "projectile_number",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "in_flight_transition",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "trajectory_sight",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "effective_range",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "minimum_range",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "max_elevation",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "muzzle_velocity",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "marksmanship_bonus",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "spread",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "damage",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "penetration",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "incendiary",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "blast_effect",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "can_bounce",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "high_air_resistance",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "collision_radius",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "base_reload_time",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "base_misfire_chance",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "weather_effect",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "sail_damage_modifier",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "below_waterline_damage_modifer",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "launch_audio",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "hit_audio",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "launch_particle_effect",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "projectile_trail_particle_effect",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "impact",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "gun_type",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "first_person_launch_particle_effect",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "calibration_distance",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "calibration_area",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "can_penetrate_fortwall",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "gravity",
+        "type": "F32",
+        "key": false
+      }
+    ]
+  },
+  "particle_effects_tables": {
+    "0": [
+      {
+        "name": "key",
+        "type": "StringU16",
+        "key": true
+      }
+    ]
+  },
+  "gun_type_to_projectiles_tables": {
+    "1": [
+      {
+        "name": "gun_type",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "shot_type",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "muzzle_flash",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "concentrated_fire_maximum_frequency",
+        "type": "F32",
+        "key": false
+      }
+    ]
   }
 }

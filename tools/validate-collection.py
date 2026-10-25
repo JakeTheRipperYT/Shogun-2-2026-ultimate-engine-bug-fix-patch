@@ -173,6 +173,21 @@ def main():
     require(len(matching)==7,'Nun AI quality config coverage')
     add_rows('cdir_unit_qualities',matching)
 
+    # Verify the exact requested single-field Parrott smoke restoration.
+    projectiles=source_table('projectiles')[3]
+    parrott=next(r for r in projectiles if r['key']=='boshin_parrot_gun_shell')
+    armstrong=next(r for r in projectiles if r['key']=='boshin_armstrong_gun_shell')
+    require(parrott['launch_particle_effect'] is None,'Vanilla Parrott smoke is missing')
+    require(armstrong['launch_particle_effect']=='Cannon_common_shot_lrg','Armstrong firing smoke reference')
+    require(dict(key='Cannon_common_shot_lrg') in source_table('particle_effects')[3],'Smoke effect exists')
+    links=source_table('gun_type_to_projectiles')[3]
+    require(any(r['gun_type']=='boshin_parrott_cannon' and r['shot_type']=='boshin_parrot_gun_shell' for r in links),'Parrott gun projectile mapping')
+    for key in ('Boshin_Art_Parrot_Guns','Boshin_Art_Parrot_Guns_MP'):
+        require(land_bykey[key]['gun_type']=='boshin_parrott_cannon','Campaign and MP use fixed projectile')
+    require(parrott['projectile_trail_particle_effect']==armstrong['projectile_trail_particle_effect'] and parrott['trail']==armstrong['trail'],'Flight trails already match Armstrong')
+    require(parrott['gun_type']=='howitzer','Original Parrott gun type remains unchanged')
+    parrott['launch_particle_effect']='Cannon_common_shot_lrg'
+
     for table,(path,prefix,fields,rows,raw) in table_cache.items():
         new=c.encode(prefix,fields,rows)
         if new!=raw: expected['data.pack'][path]=new
@@ -255,6 +270,7 @@ def main():
     report=dict(result='pass',packs=receipts,tables=details,ninjaVariants=sorted(ninja_keys),ninjaAmmo=2,
                 colours=93,loadingImages=12,modelAssets=12,traitWrites=len(recipe['writes']),
                 unchangedBytesCompared=unchanged_bytes,vanillaModified=False,
+                parrottSmoke=dict(projectile='boshin_parrot_gun_shell',field='launch_particle_effect',effect='Cannon_common_shot_lrg',changedFields=1,combatStatsPreserved=True),
                 unitAccess=dict(squareUnits=sorted(spear_units),campaignSquareArt='Spear Expertise',customBattleSquareDefault=True,rapidAdvance='Inf_Spear_Yari_Ronin',ikkoNun=ikko_nun,templeTier=3,templeTechnology='Scholarship',newAbilityLinks=5,newRecruitmentRows=2),
                 excluded=['Lua scripts','Tercios','replacement ninja IDs','audio changes','unrelated localisation','collection general traits'],
                 gameplayValidation='pending player testing')

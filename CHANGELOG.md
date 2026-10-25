@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.13-parrott-smoke-test
+
+- Restore missing FOTS Parrott firing smoke using the Armstrong gun's existing Cannon_common_shot_lrg effect. Exactly one projectile field changes; preserve gun type, sound, ballistics and combat stats. Both campaign/custom and Avatar Parrott variants use the corrected projectile.
+- Retain all previous fixes, including the user-confirmed 0.1.12 unit access. See [smoke investigation](docs/parrott-smoke-0.1.13.md).
+
 ## 0.1.12-unit-access-test
 
 - Give Yari Samurai variants Yari Square via existing Spear Expertise/custom-battle unlocks; give Yari Ronin Rapid Advance.
