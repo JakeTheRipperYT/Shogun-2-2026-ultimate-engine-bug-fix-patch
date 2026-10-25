@@ -1,0 +1,20 @@
+{
+  "id": "rank-idle-first-volley",
+  "title": "Trial: interrupt standing idle clips before initial ranked preparation",
+  "description": "0.1.7 trial: live baseline confirms idle155 blocks initial type-5 STOP; patched battle A/B pending. Detour only rank preparation FUN_10188290; require task vtable 0x115C1048, first-cycle flag +45 == 1, fired flag +44 == 0, ordinary followup argument == 0 and current group +40 == 0. For a nonnull soldier whose current clip at +474 has animation ID 141..157 (standing/trained-standing idle families), call native FUN_103CA920. Restore all GPRs/EFLAGS and replay the full original five-byte prologue. Existing type-5 request, stance flags, loading, time/STOP conditions and later firing cycles are unchanged. Stub is 90 PIC bytes at 0x115A0DA0; requires current 000 text mapping and does not overlap naval/pack redirect data. Live baseline observed idle155; battle regression and measured improvement remain unverified. See docs/rank-fire-live-baseline.md.",
+  "enabled": true,
+  "writes": [
+    {
+      "va": "0x115a0da0",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "9c 60 e8 00 00 00 00 5a 81 c2 a1 02 02 00 39 11 75 3c 80 79 45 01 75 36 80 79 44 00 75 30 80 7c 24 2c 00 75 29 83 79 40 00 75 23 8b 4c 24 28 85 c9 74 1b 8b 81 74 04 00 00 85 c0 74 11 8b 00 2d 8d 00 00 00 83 f8 10 77 05 e8 32 9b e2 fe 61 9d 83 ec 50 8b c1 e9 9b 74 be fe",
+      "note": "PIC guard/cancel adapter; no absolute addresses or new relocations"
+    },
+    {
+      "va": "0x10188290",
+      "expect": "83 ec 50 8b c1",
+      "bytes": "e9 0b 8b 41 01",
+      "note": "Whole original prologue replaced by relative jump; adapter resumes at 0x10188295"
+    }
+  ]
+}
