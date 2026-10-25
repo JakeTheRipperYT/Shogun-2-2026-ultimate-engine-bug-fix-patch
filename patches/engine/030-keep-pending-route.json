@@ -1,0 +1,20 @@
+{
+  "id": "keep-pending-route",
+  "title": "Siege lock-up fix: re-targeting a soldier to the same spot keeps its queued route",
+  "description": "Root cause (docs/siege-lockup-root-cause.md): during wall assaults the pathfinder queue holds thousands of per-soldier ground-to-wall-top routes, each unique and uncacheable because it crosses dynamic climbing links. The queue solves about 200-500 a second, so a new request takes 10-20 s to reach the front. But unit re-forms (casualty compaction, squad regroup) re-target every member of a waiting unit every few seconds, and Entity::SetMoveTarget FUN_103DF290 then releases the soldier's still-pending request and appends a new one at the tail. Measured: 400-1,300 requests a second are removed unsolved, against 200-500 solved. Requests are replaced (about every 5 s per soldier) faster than the queue can reach them, so almost nothing completes and every unit near the walls, including the player's, stalls. This hooks SetMoveTarget's first 8 bytes. If the soldier is in movement state 2 (Entity+0x3BC) with a pending, not-ready request (Entity+0x3CC, +0x20 == 0) whose end region (req+0x4C) equals the new destination's region (dest+0x10) and whose end point (req+0x3C/+0x40/+0x44) is within 5 m of the new destination, the call returns (ret 8) and the request keeps its place. Anything else, including NaN distances, runs the original prologue (push esi / mov esi,ecx / call 0x103DD9B0) and continues at 0x103DF298 unchanged. The code is position-independent (relative branches only).",
+  "enabled": false,
+  "writes": [
+    {
+      "va": "0x115A0C90",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "83 B9 BC 03 00 00 02 75 66 8B 81 CC 03 00 00 85 C0 74 5C 80 78 20 00 75 56 52 8B 54 24 08 51 8B 4A 10 3B 48 4C 59 75 46 F3 0F 10 02 F3 0F 5C 40 3C F3 0F 59 C0 F3 0F 10 4A 04 F3 0F 5C 48 40 F3 0F 59 C9 F3 0F 58 C1 F3 0F 10 4A 08 F3 0F 5C 48 44 F3 0F 59 C9 F3 0F 58 C1 68 00 00 C8 41 0F 2F 04 24 8D 64 24 04 5A 7A 06 77 04 C2 08 00 5A 56 89 CE E8 A9 CC E3 FE E9 8C E5 E3 FE",
+      "note": "keep-pending stub, 124 bytes"
+    },
+    {
+      "va": "0x103DF290",
+      "expect": "56 8B F1 E8 18 E7 FF FF",
+      "bytes": "E9 FB 19 1C 01 90 90 90",
+      "note": "SetMoveTarget prologue -> jmp stub"
+    }
+  ]
+}
