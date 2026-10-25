@@ -6,6 +6,8 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 Current trial: **0.1.13-parrott-smoke-test**. Restores the FOTS Parrott gun's missing firing smoke using the Armstrong gun's existing effect. Exactly one projectile field changes; ballistics, gun type and audio stay unchanged. See [smoke investigation](docs/parrott-smoke-0.1.13.md). The user confirmed the previous [Yari/Ikko unit access changes](docs/unit-access-0.1.12.md) work. All [selected collection fixes](docs/selected-collection-0.1.11.md), engine patches and current trait/fear values remain enabled. Smoke appearance awaits an in-game firing test.
 
+[Full cumulative changelog](docs/full-changelog.md).
+
 ## Launcher and installer
 
 The installer reconstructs a separate engine from the player's own files. Vanilla game files remain intact. The launcher checks Steam and running OG processes, sets app 34330, forwards arguments and starts the separate bootstrap with the game root as its working directory.
