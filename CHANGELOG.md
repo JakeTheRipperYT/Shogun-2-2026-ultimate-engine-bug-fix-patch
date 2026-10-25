@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.16-single-group-cleanup-test
+
+- Destroy the engine group when its last UI member is removed, preventing empty records from surviving after ungrouping.
+- Prevent a recreated group from reusing an ID still occupied by that stale record and losing movement/lock input.
+- Preserve locked and unlocked singleton groups, multi-unit behavior, negative-count rejection and existing ownership/existence checks. See [cleanup regression](docs/single-unit-group-cleanup-0.1.16.md).
+
 ## 0.1.15-single-groups-test
 
 - Allow player battle groups containing one land unit or ship.

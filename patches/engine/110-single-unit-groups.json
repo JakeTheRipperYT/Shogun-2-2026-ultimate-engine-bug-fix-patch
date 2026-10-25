@@ -1,7 +1,7 @@
 {
   "id": "single-unit-groups",
   "title": "Allow single-unit battle groups",
-  "description": "Allow one-card land/naval groups through actual creator/UI gates; retain nonempty one-card groups after removal; show their group frame using the ordinary single-row path even in compact mode. Zero selections/empty groups remain rejected or removed, the original zero-removal callback path is preserved, existing max-group checks and multi-unit compact layout remain unchanged. New 16-byte relative frame adapter resides in its own RX .ubfix section; no absolute operand or relocation added. Requires guarded recipe append support. Candidate pending controlled battle testing.",
+  "description": "Allow one-card land/naval groups through actual creator/UI gates; retain nonempty one-card groups after removal; show their group frame using the ordinary single-row path even in compact mode. Zero selections/empty groups remain rejected or removed, the original zero-removal callback path is preserved, existing max-group checks and multi-unit compact layout remain unchanged. New 16-byte relative frame adapter resides in its own RX .ubfix section; no absolute operand or relocation added. Zero-member teardown reaches the existing engine-destroy command before UI ID reuse; preserve negative-count and ownership/existence checks. Requires guarded recipe append support. Corrected cleanup pending player regression testing.",
   "enabled": true,
   "sourceSha256": "022fae2e2da92b59b8b1b8ee52887003c624e3c8eca060b209f5d792a7f874f5",
   "writes": [
@@ -34,6 +34,12 @@
       "expect": "77",
       "bytes": "73",
       "note": "Retain >=1 members using JAE; original CMP flags and zero-removal cleanup remain unchanged"
+    },
+    {
+      "va": "0x110dd31d",
+      "expect": "8e",
+      "bytes": "8c",
+      "note": "Permit zero-member UI record engine teardown; signed JL still rejects invalid negative counts; record and engine-existence guards remain"
     },
     {
       "va": "0x112234a0",

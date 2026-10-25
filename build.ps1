@@ -206,6 +206,8 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\110-singl
     & $Python -B (Join-Path $root 'tools\test-single-unit-groups.py') --vanilla (Join-Path $GameDir 'empire.retail.dll') --dll (Join-Path $build 'dev\empire.retail.dll') |
         Tee-Object -FilePath (Join-Path $build 'single-unit-group-tests.txt') | Out-Host
     if ($LASTEXITCODE -ne 0) { throw 'Single-unit group fixtures failed.' }
+    Step 'Native zero-member teardown and same-ID recreation checks'
+    Run $Python @('-B', (Join-Path $root 'tools\test-single-unit-group-cleanup.py'), '--vanilla', (Join-Path $GameDir 'empire.retail.dll'), '--dll', (Join-Path $build 'dev\empire.retail.dll'), '--report', (Join-Path $build 'single-unit-group-cleanup-tests.json'))
     Step 'Unchanged group command serializer and receiver checks'
     Run $Python @('-B', (Join-Path $root 'tools\test-single-unit-group-command.py'), (Join-Path $GameDir 'empire.retail.dll'), (Join-Path $build 'dev\empire.retail.dll'), '--report', (Join-Path $build 'single-unit-group-command-tests.json'))
 }

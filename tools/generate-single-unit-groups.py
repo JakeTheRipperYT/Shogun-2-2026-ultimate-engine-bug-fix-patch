@@ -71,9 +71,10 @@ def generate(engine,enable=True):
         writes.append({('va' if va else 'offset'):hex(at),'expect':before.hex(' '),'bytes':after.hex(' '),'note':note})
     for va,note in SITES:add(va,b'\0',note,True,b'\1')
     add(0x10F9787F,b'\x73','Retain >=1 members using JAE; original CMP flags and zero-removal cleanup remain unchanged',True,b'\x77')
+    add(0x110DD31D,b'\x8c','Permit zero-member UI record engine teardown; signed JL still rejects invalid negative counts; record and engine-existence guards remain',True,b'\x8e')
     # Guard surrounding instructions, not only the immediate being changed.
     contexts=((0x11101A36,'83 7c 24 38 01 76 21'),(0x11102DC5,'83 7f 04 01 76 21'),
-              (0x10F89A43,'83 7e 28 01 76 3e'),(0x10F9787B,'83 7f 0c 01 77 2d 75 09'),
+              (0x10F89A43,'83 7e 28 01 76 3e'),(0x110DD318,'83 78 0c 00 0f 8e 84 00 00 00'),(0x10F9787B,'83 7f 0c 01 77 2d 75 09'),
               (0x1122347F,'83 7d 04 01 8b 4b 04 77 0f'),
               (HOOK,'80 7c 24 68 00'),(RESUME,'8b 45 08 8b 38 8b 43 44 8b c8 89 7c 24 14 89 44 24 24 0f 85 c7 00 00 00'))
     for va,expected in contexts:
@@ -116,7 +117,7 @@ def generate(engine,enable=True):
         # itself may not change any original bytes in these sections.
         if own[s['rawOffset']:s['rawOffset']+s['rawSize']]!=raw[s['rawOffset']:s['rawOffset']+s['rawSize']]:raise ValueError('Single-group patch touched original '+name)
     recipe=dict(id='single-unit-groups',title='Allow single-unit battle groups',
-        description='Allow one-card land/naval groups through actual creator/UI gates; retain nonempty one-card groups after removal; show their group frame using the ordinary single-row path even in compact mode. Zero selections/empty groups remain rejected or removed, the original zero-removal callback path is preserved, existing max-group checks and multi-unit compact layout remain unchanged. New 16-byte relative frame adapter resides in its own RX .ubfix section; no absolute operand or relocation added. Requires guarded recipe append support. Candidate pending controlled battle testing.',
+        description='Allow one-card land/naval groups through actual creator/UI gates; retain nonempty one-card groups after removal; show their group frame using the ordinary single-row path even in compact mode. Zero selections/empty groups remain rejected or removed, the original zero-removal callback path is preserved, existing max-group checks and multi-unit compact layout remain unchanged. New 16-byte relative frame adapter resides in its own RX .ubfix section; no absolute operand or relocation added. Zero-member teardown reaches the existing engine-destroy command before UI ID reuse; preserve negative-count and ownership/existence checks. Requires guarded recipe append support. Corrected cleanup pending player regression testing.',
         enabled=enable,sourceSha256=SOURCE_SHA256,writes=writes,
         append=dict(offset=hex(len(raw)),bytes=payload.hex(' ')))
     result=dict(enabled=enable,writes=len(writes),thresholdImmediates=len(SITES),retentionBranchChanges=1,appendedBytes=len(payload),section='.ubfix',sectionHeader=hex(header),sectionRva=hex(new_rva),sectionVa=hex(new_va),sectionRaw=hex(raw_pointer),stubBytes=stub.hex(' '),stubSha256=hashlib.sha256(stub).hexdigest(),newSizeOfImage=hex(align(new_rva+len(stub),section_align)),ownEngineSha256=hashlib.sha256(own).hexdigest(),allEnabledEngineSha256=hashlib.sha256(combined).hexdigest(),length=len(combined),gameFilesModified=False)

@@ -17,3 +17,5 @@ Current focused task: user explicitly requests the Armstrong smoke effect for FO
 User-authorized 0.1.14 scope: Mori Medium Bune Harbour recruitment, Mori Nanban base campaign AP65, Ikko monk base AP30, as documented in docs/campaign-parity-0.1.14.md. Preserve all prior fixes and normal campaign bonus calculations.
 
 User-authorized 0.1.15 scope: single-unit player battle groups, including land/naval UI eligibility, actual creator, nonempty group retention and safe singleton frame layout. Core battle group commands/movement already accept one. Preserve zero-selection/empty cleanup/max-capacity guards, scripting unit-controller limits and unrelated AI checks. See docs/single-unit-groups-0.1.15.md.
+
+Current singleton regression correction: preserve both locked/unlocked singletons. Fix only owner zero-member teardown guard110DD31D (JLE to JL); retain record lookup, engine existence checks and negative-count rejection. Controlled live create/ungroup/recreate reproduced stale empty ID0 shadowing; initial fresh first-G failure was not reproduced in two controlled runs. See docs/single-unit-group-cleanup-0.1.16.md.

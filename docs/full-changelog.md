@@ -35,3 +35,4 @@
 - Increase Ikko monk agent base movement from **20 to 30**, matching regular monks.
 - Allow player battle groups containing one land unit or ship.
 - Retain groups with one remaining member and show single-member group frames safely in compact UI mode.
+- Remove the engine record when a group loses its last UI member, preventing stale group IDs from making recreated single-unit groups unresponsive.

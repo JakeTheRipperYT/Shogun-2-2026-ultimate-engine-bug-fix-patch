@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.15-single-groups-test**. Allow single-unit land and naval battle groups, retain groups with one remaining member, and use the safe ordinary frame layout for single-member groups in compact mode. See [group implementation and testing](docs/single-unit-groups-0.1.15.md). All earlier engine/data fixes remain enabled. In-game group creation, locking, orders and casualty testing remain pending.
+Current trial: **0.1.16-single-group-cleanup-test**. Correct singleton ungrouping so its engine record is destroyed before the group number can be reused. This addresses the reproduced create/ungroup/recreate freeze while preserving both locked and unlocked groups. See [cleanup regression and verification](docs/single-unit-group-cleanup-0.1.16.md). Earlier fixes and all data packs are preserved. Corrected in-game regression testing remains pending.
 
 [Full cumulative changelog](docs/full-changelog.md).
 
