@@ -1,0 +1,14 @@
+{
+  "id": "text-cave",
+  "title": "Map executable padding for naval and initial rank-idle adapters",
+  "description": "Map existing executable raw padding through 0x115A0DFF for naval adapter 070 and the 90-byte initial rank-idle adapter080. No pack redirect is included in this clean trial.",
+  "enabled": true,
+  "writes": [
+    {
+      "offset": "0x260",
+      "expect": "3e fc 59 01",
+      "bytes": "00 fe 59 01",
+      "note": "Grow .text VirtualSize within existing executable raw padding; no file or section growth"
+    }
+  ]
+}
