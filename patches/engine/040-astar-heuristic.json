@@ -1,0 +1,14 @@
+{
+  "id": "astar-heuristic",
+  "title": "Siege lock-up fix: pathfinding heuristic no longer squares distance after 500 expansions",
+  "description": "PathSearch::HeuristicCostTo FUN_1038F0E0 (A* heuristic). While the search's expansion counter (context+0xCC) is under 500 it returns distance * 1.5. From 500 on it returns ((distance + node.additive) * node.multiplier)^2. That is metres squared against path costs in metres, and it is scaled by the candidate node's own cost multiplier. Climbing links are high-multiplier nodes, so once a route to the wall-walk passes 500 expansions, every climbing node gets an enormous heuristic. The search avoids the only nodes that lead up, floods the ground below the target to the 3,000-expansion cap, and the solver retries. Each wall-top route then costs thousands of work units against the queue's 500-per-update budget, so the queue manages about one route per update and siege lock-ups follow (raising the budget, as Remastered CE did, only pays for this). This NOPs the jae at 0x1038F12A so the heuristic is always distance * 1.5 (weighted A*, still bounded by the 3,000-expansion cap).",
+  "enabled": false,
+  "writes": [
+    {
+      "va": "0x1038F12A",
+      "expect": "73 15",
+      "bytes": "90 90",
+      "note": "jae squared-heuristic branch -> nop nop"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "route-budget-reset",
+  "title": "Siege lock-up fix: the route queue gets its own work budget every update",
+  "description": "Root cause of the route-queue overflow. Pathfinder::Update FUN_103AAC30 serves the pending route queue (Pathfinder+0x148) until the work counter Pathfinder+0x470 reaches 500, always serving at least one. That counter is the solver's running total (solver = Pathfinder+0x36C, total at +0x104). Every solve adds its cost (solver+0xC8) in FUN_10386D90, and the counter is reset only at the end of the update (0x103AAF09). Synchronous class-0 solves made during the frame by FUN_10385FD0 (immediate re-solves of stale routes) go through the same solver and the same counter. Once they exceed 500 between updates, the queue gets exactly one request per update however long it is. During wall assaults the counter reaches 2,800-22,000 before the queue runs (sampler capture, 2026-10-18), so the queue starves and overflows. Raising the limit to 2000 (Remastered CE) only made starvation less frequent. Fix: zero the counter immediately before the queue loop, so the 500 budget measures queue work only. The loop's first instruction (mov edi,[esi+0x148]) becomes a call to a stub that zeros +0x470 and then performs the load. Flags are set by the following test, so behaviour is otherwise identical.",
+  "enabled": false,
+  "writes": [
+    {
+      "va": "0x115A0C70",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "C7 86 70 04 00 00 00 00 00 00 8B BE 48 01 00 00 C3",
+      "note": "stub: mov dword [esi+0x470],0 / mov edi,[esi+0x148] / ret"
+    },
+    {
+      "va": "0x103AAE93",
+      "expect": "8B BE 48 01 00 00",
+      "bytes": "E8 D8 5D 1F 01 90",
+      "note": "queue loop entry: mov edi,[esi+0x148] -> call stub; nop"
+    }
+  ]
+}
