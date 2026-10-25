@@ -1,6 +1,6 @@
 // Developer-only release tooling. Not shipped to players.
 //   ReleaseTool keygen [--force]
-//   ReleaseTool make --game <dir> --version <x.y.z[-tag]> --launcher <exe> --patches <dir> --out <file.s2ub> [--data-patches <dir>] [--dev-output <dir>] [--key <xml>]
+//   ReleaseTool make --game <dir> --version <x.y.z[-tag]> --launcher <exe> --patches <dir> --out <file.s2ub> [--data-patches <dir> | --pack-recipes <dir>] [--dev-output <dir>] [--key <xml>]
 //   ReleaseTool verify <file.s2ub>
 using System;
 using System.Collections.Generic;
@@ -65,7 +65,7 @@ static class ReleaseTool {
         var r = Release.Parse(File.ReadAllBytes(path), File.ReadAllText(Path.Combine("installer", "release-public.xml")));
         Console.WriteLine("Signature OK. Version " + r.Version + ", package " + r.PackageHash);
         foreach (var f in J.Arr(r.Manifest["files"]).Select(J.Obj))
-            Console.WriteLine("  " + J.S(f, "source") + " -> " + J.S(f, "destination") + ": " + J.Arr(f["writes"]).Length + " write(s), sha256 " + J.S(f, "sha256"));
+            Console.WriteLine("  " + J.S(f, "source") + " -> " + J.S(f, "destination") + ": " + OperationCount(f) + ", sha256 " + J.S(f, "sha256"));
     }
 
     static void Make(Dictionary<string, string> o) {
@@ -85,6 +85,7 @@ static class ReleaseTool {
             FileSpec(GameLayout.GameExe, GameLayout.Bootstrap, exe, bootstrap),
         };
         bool dataDelta = false;
+        if (o.ContainsKey("data-patches") && o.ContainsKey("pack-recipes")) throw new ArgumentException("Use either --data-patches or --pack-recipes, not both.");
         if (o.ContainsKey("data-patches")) foreach (string path in Directory.GetFiles(o["data-patches"], "*.json").OrderBy(x => x, StringComparer.Ordinal)) {
             var recipe = J.Parse(File.ReadAllText(path));
             if (!recipe.ContainsKey("enabled") || !Convert.ToBoolean(recipe["enabled"])) continue;
@@ -92,8 +93,19 @@ static class ReleaseTool {
             files.Add(StreamFileSpec(game, recipe));dataDelta = true;
             applied.Add(new Dictionary<string, object> { { "id", J.S(recipe, "id") }, { "title", J.S(recipe, "title") }, { "description", recipe.ContainsKey("description") ? J.S(recipe, "description") : "" } });
         }
+        bool composed = false;
+        var composedPacks = new HashSet<string>(StringComparer.Ordinal);
+        if (o.ContainsKey("pack-recipes")) foreach (string path in Directory.GetFiles(o["pack-recipes"], "*.json").OrderBy(x => x, StringComparer.Ordinal)) {
+            var recipe = J.Parse(File.ReadAllText(path));
+            if (recipe.ContainsKey("enabled") && !Convert.ToBoolean(recipe["enabled"])) continue;
+            var spec = ComposeFileSpec(game, recipe);
+            if (!composedPacks.Add(J.S(spec, "destination"))) throw new InvalidDataException("Duplicate composed pack destination.");
+            files.Add(spec);composed = true;
+            applied.Add(new Dictionary<string, object> { { "id", J.S(recipe, "id") }, { "title", J.S(recipe, "title") }, { "description", recipe.ContainsKey("description") ? J.S(recipe, "description") : "" } });
+        }
+        if (o.ContainsKey("pack-recipes") && !composed) throw new InvalidDataException("No enabled pack composition recipes were found.");
         var manifest = new Dictionary<string, object> {
-            { "schema", dataDelta ? 2 : 1 }, { "version", version }, { "minimumInstallerVersion", dataDelta ? GameLayout.StreamDeltaMinimum : "0.1.0-preview" },
+            { "schema", composed ? 3 : dataDelta ? 2 : 1 }, { "version", version }, { "minimumInstallerVersion", composed ? GameLayout.StreamComposeMinimum : dataDelta ? GameLayout.StreamDeltaMinimum : "0.1.0-preview" },
             { "gameBuild", o.ContainsKey("game-build") ? o["game-build"] : "" },
             { "createdUtc", DateTime.UtcNow.ToString("o") },
             { "patches", applied.ToArray() }, { "files", files.ToArray() },
@@ -122,19 +134,40 @@ static class ReleaseTool {
             Directory.CreateDirectory(dev);
             File.WriteAllBytes(Path.Combine(dev, GameLayout.GameEngine), engine);
             File.WriteAllBytes(Path.Combine(dev, GameLayout.Bootstrap), bootstrap);
-            foreach (var f in files.Where(x => x.ContainsKey("kind") && J.S(x, "kind") == "stream-delta")) {
+            foreach (var f in files.Where(x => x.ContainsKey("kind") && (J.S(x, "kind") == "stream-delta" || J.S(x, "kind") == "stream-compose"))) {
                 string destination = Engine.Under(dev, J.S(f, "destination"));
                 string source = Engine.Under(game, J.S(f, "source"));
                 if (String.Equals(Path.GetFullPath(destination), Path.GetFullPath(source), StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("Developer output may not overwrite the vanilla data pack.");
                 Directory.CreateDirectory(Path.GetDirectoryName(destination));
                 if (File.Exists(destination)) File.Delete(destination);
-                Engine.PatchStream(source, destination, f, System.Threading.CancellationToken.None);
+                if (J.S(f, "kind") == "stream-compose") Engine.PatchCompose(source, destination, f, System.Threading.CancellationToken.None);
+                else Engine.PatchStream(source, destination, f, System.Threading.CancellationToken.None);
             }
         }
         Console.WriteLine("Release " + version + " -> " + Path.GetFullPath(outPath));
         Console.WriteLine("  engine patches applied: " + applied.Count);
-        foreach (var f in files) Console.WriteLine("  " + J.S(f, "destination") + ": " + ((object[])f["writes"]).Length + " write(s)");
+        foreach (var f in files) Console.WriteLine("  " + J.S(f, "destination") + ": " + OperationCount(f));
+    }
+
+    static string OperationCount(Dictionary<string, object> f) {
+        bool composed = f.ContainsKey("kind") && J.S(f, "kind") == "stream-compose";
+        return J.Arr(f[composed ? "segments" : "writes"]).Length + (composed ? " segment(s)" : " write(s)");
+    }
+
+    static Dictionary<string, object> ComposeFileSpec(string game, Dictionary<string, object> recipe) {
+        string source = J.S(recipe, "source"), destination = J.S(recipe, "destination");
+        if (J.S(recipe, "kind") != "stream-compose" || source != destination || !GameLayout.PrivatePacks.Contains(destination, StringComparer.Ordinal))
+            throw new InvalidDataException("Pack recipes may only compose the three supported original packs into matching managed packs.");
+        var spec = new Dictionary<string, object> {
+            { "kind", "stream-compose" }, { "source", source }, { "destination", destination },
+            { "sourceSha256", J.S(recipe, "sourceSha256") }, { "length", recipe["length"] },
+            { "sha256", J.S(recipe, "sha256") }, { "segments", J.Arr(recipe["segments"]) }
+        };
+        Console.WriteLine("Verifying streamed pack composition (bounded memory): " + J.S(recipe, "id"));
+        if (Engine.StreamComposeHash(Engine.Under(game, source), spec, System.Threading.CancellationToken.None) != J.S(spec, "sha256"))
+            throw new InvalidDataException("Pack recipe output SHA-256 did not match.");
+        return spec;
     }
 
     static void Entry(ZipArchive a, string name, byte[] data) {

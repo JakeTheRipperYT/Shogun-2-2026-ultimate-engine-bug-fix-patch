@@ -16,6 +16,7 @@ param(
     [string]$Version,
     [string]$GameDir,
     [string]$Python = $env:OGPATCH_PYTHON,
+    [string]$CollectionPack = $env:OGPATCH_COLLECTION,
     [switch]$Keygen,
     [switch]$SkipTests
 )
@@ -62,6 +63,14 @@ Step 'Verify progressive trait and numeric fear data recipe against vanilla OG'
 if (-not $Python) { $Python = (Get-Command python.exe -ErrorAction Stop).Source }
 Run $Python @((Join-Path $root 'tools\build-fear-stacking.py'), '--game-dir', $GameDir, '--check')
 
+Step 'Prepare selected collection changes as private pack composition recipes'
+if (-not $CollectionPack) {
+    $CollectionPack = Join-Path (Split-Path (Split-Path $GameDir)) 'workshop\content\34330\3804538920\Bug fix collection.pack'
+}
+if (-not (Test-Path -LiteralPath $CollectionPack)) { throw 'Collection pack not found. Pass -CollectionPack or set OGPATCH_COLLECTION for release preparation.' }
+$packRecipes = Join-Path $build 'collection-recipes'
+Run $Python @((Join-Path $root 'tools\build-collection.py'), '--game-dir', $GameDir, '--collection', $CollectionPack, '--output', $packRecipes)
+
 # --- Launcher --------------------------------------------------------------------------------
 Step 'Launcher'
 $launcher = Join-Path $build 'Launch_Shogun2_Ultimate_Patch.exe'
@@ -90,7 +99,7 @@ try {
     Step "Release $Version from $GameDir (Steam build $gameBuild)"
     $package = Join-Path $build "Shogun2UltimatePatch-$Version.s2ub"
     $makeArgs = @('make', '--game', $GameDir, '--version', $Version, '--launcher', $launcher,
-                  '--patches', (Join-Path $root 'patches\engine'), '--data-patches', (Join-Path $root 'patches\data'), '--out', $package, '--dev-output', (Join-Path $build 'dev'))
+                  '--patches', (Join-Path $root 'patches\engine'), '--pack-recipes', $packRecipes, '--out', $package, '--dev-output', (Join-Path $build 'dev'))
     if ($gameBuild) { $makeArgs += @('--game-build', $gameBuild) }
     Run $tool $makeArgs
     Run $tool @('verify', $package)
@@ -185,6 +194,8 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\100-fear-
 }
 
 Step 'Package'
+Step 'Validate rebuilt archive entries and selected changes'
+Run $Python @((Join-Path $root 'tools\validate-collection.py'), '--game-dir', $GameDir, '--collection', $CollectionPack, '--built-dir', (Join-Path $build 'dev'), '--report', (Join-Path $build 'collection-validation.json'))
 $zip = Join-Path $dist 'Shogun2UltimatePatch_Installer.zip'
 Remove-Item $zip -ErrorAction SilentlyContinue
 Compress-Archive -Path $setup -DestinationPath $zip

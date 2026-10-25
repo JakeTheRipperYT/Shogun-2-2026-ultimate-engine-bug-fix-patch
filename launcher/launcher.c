@@ -10,7 +10,7 @@
 #define TITLE L"Shogun 2 Ultimate Bug Fix Patch"
 #define STEAM_APP_ID L"34330"
 
-static WCHAR root[MAX_PATH * 4], exe[MAX_PATH * 4], engine[MAX_PATH * 4], data[MAX_PATH * 4], cmd[MAX_PATH * 8];
+static WCHAR root[MAX_PATH * 4], exe[MAX_PATH * 4], engine[MAX_PATH * 4], data[MAX_PATH * 4], models[MAX_PATH * 4], local_en[MAX_PATH * 4], cmd[MAX_PATH * 8];
 // Static so no CRT memset is needed to zero them.
 static STARTUPINFOW startup;
 static PROCESS_INFORMATION process;
@@ -74,10 +74,13 @@ void entry(void) {
     while (n && root[n - 1] != L'\\') --n;
     root[n] = 0;
     if (!join(exe, MAX_PATH * 4, root, L"Shogun2_UB.exe") || !join(engine, MAX_PATH * 4, root, L"UltimatePatch\\empire.retail.dll") ||
-        !join(data, MAX_PATH * 4, root, L"UltimatePatch\\data\\data.pack"))
+        !join(data, MAX_PATH * 4, root, L"UltimatePatch\\data\\data.pack") ||
+        !join(models, MAX_PATH * 4, root, L"UltimatePatch\\data\\models.pack") ||
+        !join(local_en, MAX_PATH * 4, root, L"UltimatePatch\\data\\local_en.pack"))
         fail(L"The game folder path is too long.");
     if (GetFileAttributesW(exe) == INVALID_FILE_ATTRIBUTES || GetFileAttributesW(engine) == INVALID_FILE_ATTRIBUTES ||
-        GetFileAttributesW(data) == INVALID_FILE_ATTRIBUTES)
+        GetFileAttributesW(data) == INVALID_FILE_ATTRIBUTES || GetFileAttributesW(models) == INVALID_FILE_ATTRIBUTES ||
+        GetFileAttributesW(local_en) == INVALID_FILE_ATTRIBUTES)
         fail(L"The Ultimate Patch is not installed in this folder.\n\nRun the Shogun 2 Ultimate Bug Fix Patch installer and choose Install / Update. "
              L"Keep this launcher in the Total War: SHOGUN 2 folder.");
     if (game_running())

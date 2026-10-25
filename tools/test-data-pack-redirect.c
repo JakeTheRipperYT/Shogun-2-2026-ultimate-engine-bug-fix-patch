@@ -63,6 +63,27 @@ static __declspec(naked) DWORD __cdecl loaderResult(void *) {
         ret
     }
 }
+static const WCHAR *shadowFor(const WCHAR *path) {
+    const WCHAR *names[]={L"data\\data.pack",L"data\\models.pack",L"data\\local_en.pack"};
+    const WCHAR *shadows[]={L"UltimatePatch\\data\\data.pack",L"UltimatePatch\\data\\models.pack",L"UltimatePatch\\data\\local_en.pack"};
+    if(!path) return NULL;
+    size_t length=wcslen(path);
+    for(unsigned n=0;n<3;++n) {
+        size_t wanted=wcslen(names[n]);
+        if(length<wanted) continue;
+        size_t start=length-wanted;
+        if(start && path[start-1]!=L'\\' && path[start-1]!=L'/') continue;
+        bool matches=true;
+        for(size_t i=0;i<wanted;++i) {
+            WCHAR c=path[start+i];
+            if(c==L'/') c=L'\\';
+            if(c>=L'A' && c<=L'Z') c+=32;
+            if(c!=names[n][i]) {matches=false;break;}
+        }
+        if(matches) return shadows[n];
+    }
+    return path;
+}
 static int run(HMODULE module,int patched) {
     BYTE *base=(BYTE *)module;
     void **iat=(void **)(base+0x15A1144),*saved=*iat;DWORD protection=0;
@@ -71,7 +92,10 @@ static int run(HMODULE module,int patched) {
     Open7 entry=patched ? (Open7)(base+0x15A0C4A) : (Open7)*iat;
     const WCHAR *paths[]={NULL,L"",L"data.pack",L"data\\data.pack",L"DATA/DATA.PACK",L"C:\\Games\\SHOGUN 2\\data\\data.pack",
         L"C:/Games/\x5c06\x8ecd/data/DATA.PACK",L"data\\models.pack",L"data\\local_en.pack",L"data\\boot.pack",
-        L"C:\\Games\\data\\models.pack",L"C:\\Games\\data\\local_en.pack",L"mydata\\data.pack",L"data\\xdata.pack",L"data\\data.pack.bak"};
+        L"C:\\Games\\data\\models.pack",L"C:\\Games\\data\\local_en.pack",L"mydata\\data.pack",L"data\\xdata.pack",L"data\\data.pack.bak",
+        L"DATA/MODELS.PACK",L"DATA/LOCAL_EN.PACK",L"C:/Games/\x5c06\x8ecd/data/MODELS.PACK",L"C:/Games/\x5c06\x8ecd/data/LOCAL_EN.PACK",
+        L"mydata\\models.pack",L"mydata\\local_en.pack",L"data\\models.pack.bak",L"data\\local_en.pack.bak",L"data\\xmodels.pack",L"data\\xlocal_en.pack",
+        L"UltimatePatch\\data\\models.pack",L"UltimatePatch\\data\\local_en.pack"};
     const DWORD accesses[]={0,1,0x80000000,0xC0000000,0x10000000,2,4,0x10,0x40,0x100,0x10000,0x40000,0x80000,0x01000000,0x02000000};
     int cases=0;
     for(unsigned p=0;p<sizeof(paths)/sizeof(paths[0]);++p)
@@ -79,8 +103,7 @@ static int run(HMODULE module,int patched) {
     for(DWORD disposition=1;disposition<=5;++disposition) {
         Arguments args={paths[p],accesses[a],0x1122,(LPSECURITY_ATTRIBUTES)0x33445566,disposition,0x02000080,(HANDLE)0x55667788};
         DWORD result[6]={0};calls=0;HANDLE returned=invoke(entry,&args,result);
-        bool matches=p==3 || p==4 || p==5 || p==6;
-        const WCHAR *expected=patched && matches && disposition==3 && !(args.access&0x530D0156) ? L"UltimatePatch\\data\\data.pack" : paths[p];
+        const WCHAR *expected=patched && disposition==3 && !(args.access&0x530D0156) ? shadowFor(paths[p]) : paths[p];
         bool pathOK=expected ? captured.path && wcscmp(capturedPath,expected)==0 : captured.path==NULL;
         if(!pathOK || calls!=1 || returned!=(HANDLE)0x12345678 || result[5]!=0x12345678 || result[0]!=result[1] ||
            result[2]!=0xB0B0B0B0 || result[3]!=0x51515151 || result[4]!=0xD1D1D1D1 ||

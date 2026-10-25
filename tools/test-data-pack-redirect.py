@@ -1,4 +1,4 @@
-"""Exercise the exact single-data.pack redirect bytes at three ASLR bases.
+"""Exercise the exact three-pack redirect bytes at three ASLR bases.
 
 Requires unicorn and pefile in the selected Python environment. Optional --dll
 checks the built DLL's recipe bytes and relocation entries, then emulates those
@@ -16,6 +16,7 @@ PREFERRED = 0x10000000
 WRAPPER, STUB, TABLE, STRINGS, IAT = 0x115A0C4A, 0x115A0C40, 0x115A0D78, 0x11793AE8, 0x115A1144
 REAL, RETURN, INPUT, STACK = 0x20000000, 0x20001000, 0x20002000, 0x2000F000
 SHADOW = 'UltimatePatch\\data\\data.pack'
+PACKS = ('data.pack', 'models.pack', 'local_en.pack')
 MASK = 0x530D0156
 
 
@@ -74,8 +75,10 @@ def emulate(writes, base, path, access=0x80000000, disposition=3, loader=False):
     expected = path
     normalized = (path or '').replace('/', '\\').lower()
     if path is not None and disposition == 3 and not access & MASK:
-        if normalized == 'data\\data.pack' or normalized.endswith('\\data\\data.pack'):
-            expected = SHADOW
+        for name in PACKS:
+            suffix = 'data\\' + name
+            if normalized == suffix or normalized.endswith('\\' + suffix):
+                expected = 'UltimatePatch\\data\\' + name
     assert output == expected, (base, path, access, disposition, output, expected)
     assert frame[0] == RETURN and frame[2:] == args[1:]
     assert mu.reg_read(UC_X86_REG_EIP) == RETURN
@@ -91,16 +94,22 @@ def exercise(writes):
              'data\\models.pack', 'data\\local_en.pack', 'data\\boot.pack',
              'C:\\Games\\data\\models.pack', 'C:\\Games\\data\\local_en.pack',
              'mydata\\data.pack', 'data\\xdata.pack', 'data\\data.pack.bak',
-             'UltimatePatch\\data\\models.pack', 'UltimatePatch\\data\\local_en.pack']
+             'UltimatePatch\\data\\models.pack', 'UltimatePatch\\data\\local_en.pack',
+             'DATA/MODELS.PACK', 'DATA/LOCAL_EN.PACK',
+             'C:/Games/将軍/data/MODELS.PACK', 'C:/Games/将軍/data/LOCAL_EN.PACK',
+             'mydata\\models.pack', 'mydata\\local_en.pack',
+             'data\\models.pack.bak', 'data\\local_en.pack.bak',
+             'data\\xmodels.pack', 'data\\xlocal_en.pack']
     accesses = [0, 1, 0x80000000, 0xC0000000, 0x10000000, 2, 4, 0x10, 0x40, 0x100, 0x10000, 0x40000, 0x80000, 0x01000000, 0x02000000]
     for base in (0x10000000, 0x53000000, 0x6C000000):
         for path in paths:
             emulate(writes, base, path); cases += 1
-        for access in accesses:
-            emulate(writes, base, 'data\\data.pack', access=access); cases += 1
-        for disposition in (1, 2, 3, 4, 5):
-            emulate(writes, base, 'data\\data.pack', disposition=disposition); cases += 1
-        emulate(writes, base, 'data\\data.pack', loader=True); cases += 1
+        for name in PACKS:
+            for access in accesses:
+                emulate(writes, base, 'data\\' + name, access=access); cases += 1
+            for disposition in (1, 2, 3, 4, 5):
+                emulate(writes, base, 'data\\' + name, disposition=disposition); cases += 1
+            emulate(writes, base, 'data\\' + name, loader=True); cases += 1
     return cases
 
 
@@ -110,12 +119,15 @@ def main():
     args = ap.parse_args()
     recipe = json.loads((ROOT / 'patches/engine/090-data-pack-redirect.json').read_text())
     writes = {int(w['va'], 0): bytes.fromhex(w['bytes']) for w in recipe['writes'] if 'va' in w}
-    assert len(writes[TABLE]) == 12, 'Exactly one redirect entry required'
+    assert len(writes[TABLE]) == 36, 'Exactly three redirect entries required'
     assert writes[STRINGS] == (SHADOW + '\0').encode('utf-16le')
+    assert writes[0x11793B80] == ('UltimatePatch\\data\\models.pack\0').encode('utf-16le')
+    assert writes[0x11793BBE] == ('UltimatePatch\\data\\local_en.pack\0').encode('utf-16le')
+    assert 0x11793BBE + len(writes[0x11793BBE]) == 0x11793C00
     assert WRAPPER + len(writes[WRAPPER]) <= 0x115A0D20
     assert TABLE + len(writes[TABLE]) <= 0x115A0DA0
     count = exercise(writes)
-    print('PASS', count, 'exact-recipe cases at three ASLR bases; data.pack only, write-access refusals, Win32 args/return/stack and nonvolatile registers')
+    print('PASS', count, 'exact-recipe cases at three ASLR bases; three managed packs, write-access refusals, Win32 args/return/stack and nonvolatile registers')
     if args.dll:
         import pefile
         pe = pefile.PE(str(args.dll), fast_load=True)

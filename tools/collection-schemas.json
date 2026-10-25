@@ -1,0 +1,1369 @@
+{
+  "building_effects_junction_tables": {
+    "0": [
+      {
+        "name": "building",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "effect",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "value",
+        "type": "F32",
+        "key": false
+      }
+    ]
+  },
+  "effect_bonus_value_unit_record_junctions_tables": {
+    "0": [
+      {
+        "name": "bonus_value_id",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "effect",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "unit_record_key",
+        "type": "StringU16",
+        "key": true
+      }
+    ]
+  },
+  "unit_stats_land_tables": {
+    "16": [
+      {
+        "name": "key",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "men",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "horse",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "guns",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "officer",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "musician",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "standard_bearer",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "soldier_model",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "man_entity",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "man_animations_table",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "equipment_theme",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "armour_audio",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "man_health",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mount_model",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "mount_entity",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "mount_animations_table",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "mount_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mount_health",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "articulated_entity",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "ammo_caisson_entity",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "ammo_caisson_model",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "artillery_model",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "siege_gun",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "gun_type",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "primary_missile_weapon",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "core_marksmanship",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "core_loading_skill",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "primary_missile_attack",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "firing_mechanism",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "default_missile_type",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "ammo",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "skeleton_missile",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "melee_weapon_type",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "melee_attack",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "charge_bonus",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "dismounted_melee_attack",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "dismounted_charge_bonus",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "melee_defence",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "shield_bonus",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "skeleton_melee",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "pistols",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "unit_drill_set",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "unit_training_level",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "morale",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "rank_depth",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "close_formation_spacing_horizontal",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "close_formation_spacing_vertical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "loose_formation_spacing_horizontal",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "loose_formation_spacing_vertical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "dismounted_close_formation_spacing_horizontal",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "dismounted_close_formation_spacing_vertical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "dismounted_loose_formation_spacing_horizontal",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "dismounted_loose_formation_spacing_vertical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "base_density",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "melee_bonus_vs_cavalry",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "grenades",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "skirmish",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "guard_mode",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_dismount",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_place_stakes",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "cannot_run",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_rally",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "hide_medium_woodland",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "hide_scrub",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "hide_long_grass",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "hide_buildings",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_stalk",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_snipe",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "does_fire_mounted_by_default",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "tree_spot_distance",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "scrub_spot_distance",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "long_grass_spot_distance",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "campmap_stealth",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "campmap_policing_bonus",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "disciplined",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "impetuous",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "scares_horses",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "fear_effect",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "inspire",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "fatigue_resistant",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "siege_ladders",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "heat_resistance",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "cold_resistance",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_do_formed_attack",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "pike_wall",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "pike_square",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "is_immune_to_attrition",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_fire_mounted_whilst_moving",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "musician_2",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "ammo_caisson_destroyed_model",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "ammo_caisson_destruction",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "all_ranks_fire",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "guerrilla_deployment",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "audio_selected",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_retreat",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_engaged_in_battle",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_idle",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_enemy_approaching",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_being_charged",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_being_flanked",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "audio_wavering",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "can_climb_fast",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_fire_at_buildings",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_fire_at_ground",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "armour_piercing_missile_attack",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "armour_piercing_melee_attack",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "loose_formation",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "close_formation_spacing_variation",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "loose_formation_spacing_variation",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "dismounted_close_formation_spacing_variation",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "dismounted_loose_formation_spacing_variation",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "bulletproof",
+        "type": "Boolean",
+        "key": false
+      }
+    ]
+  },
+  "fatigue_effects_tables": {
+    "0": [
+      {
+        "name": "fatigue_level",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "unit_category",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "run_speed",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "charge_bonus",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "firing_accuracy",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "melee_penalty",
+        "type": "F32",
+        "key": false
+      }
+    ]
+  },
+  "unit_to_unit_abilities_junctions_tables": {
+    "0": [
+      {
+        "name": "unit_name",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "ability",
+        "type": "StringU16",
+        "key": true
+      }
+    ]
+  },
+  "unit_stats_naval_tables": {
+    "16": [
+      {
+        "name": "key",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "morale",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mothball_cost",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "reactivate_cost",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "admiral_promotion_cost_record",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "bow_chasers",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "stern_chasers",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "deck_1_top",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "deck_2",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "deck_3",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "deck_4",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "deck_5",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "ship_model",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "num_marines",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "num_seamen",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "num_gunners",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "core_gunner_marksmanship",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "core_gunner_loading_skill",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "firing_mechanism",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "water_bail_out_modifier",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "flood_threshold_to_sink",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "fire_risk_modifier",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "fire_resistance",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "mass",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "collision_momentum_modifer",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "formation_distance",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "minimum_distance",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "formation_integrity",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "top_speed",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "acceleration",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "stopping_threshold",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "heel_factor",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "beating_angle",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "max_yard_angle",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "sail_furl_angle",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "speed_wind_astern",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_15_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_30_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_45_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_60_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_75_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_90_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_105_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_120_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_135_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_145_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "speed_180_deg",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "position_damping",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "rotation_damping",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_stopped",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_10_percent",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_20_percent",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_35_percent",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_50_percent",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_65_percent",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_80_percent",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "turn_rate_at_full_speed",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "top_gallants_allowed",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "side_panels_above_water_1_top_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "side_panels_above_water_1_top_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "side_panels_above_water_1_top_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "side_panels_above_water_2_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "side_panels_above_water_2_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "side_panels_above_water_2_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "side_panels_below_water_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "side_panels_below_water_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "side_panels_below_water_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "prow_panels_above_water_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "prow_panels_above_water_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "prow_panels_above_water_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "prow_panels_below_water_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "prow_panels_below_water_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "prow_panels_below_water_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "stern_panels_above_water_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "stern_panels_above_water_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "stern_panels_above_water_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "stern_panels_below_water_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "stern_panels_below_water_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "stern_panels_below_water_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "mast_1_front_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_1_front_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_1_front_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "mast_2_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_2_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_2_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "mast_3_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_3_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_3_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "top_sails_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "top_sails_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "top_sails_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "middle_sails_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "middle_sails_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "middle_sails_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "bottom_sails_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "bottom_sails_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "bottom_sails_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "top_gallants_sails_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "top_gallants_sails_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "top_gallants_sails_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "mast_bowsprit_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_bowsprit_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "mast_bowsprit_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "front_sails_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "front_sails_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "front_sails_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "back_sails_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "back_sails_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "back_sails_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "magazine_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "magazine_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "magazine_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "misc_panels_armour",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "misc_panels_hits",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "misc_panels_critical",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "scares_enemies",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "inspire",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "can_trade",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "stat_bar_manoeuvrability_rating",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "stat_bar_hull_strength",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "category",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "ship_crew_category",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "naval_mine_ability",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "naval_mine",
+        "type": "OptionalStringU16",
+        "key": false
+      },
+      {
+        "name": "audio_selected",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "bombard_ability",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "torpedo_ability",
+        "type": "I32",
+        "key": false
+      },
+      {
+        "name": "ramming_ability",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "audio_material",
+        "type": "StringU16",
+        "key": false
+      },
+      {
+        "name": "forward_facing",
+        "type": "Boolean",
+        "key": false
+      },
+      {
+        "name": "camera_ellipse_width",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "camera_ellipse_length",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "camera_ellipse_height",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "camera_ellipse_offset",
+        "type": "F32",
+        "key": false
+      },
+      {
+        "name": "boardable",
+        "type": "Boolean",
+        "key": false
+      }
+    ]
+  },
+  "effect_bonus_value_basic_junction_tables": {
+    "0": [
+      {
+        "name": "effect",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "bonus_value_id",
+        "type": "StringU16",
+        "key": true
+      }
+    ]
+  },
+  "effect_bundles_to_effects_junctions_tables": {
+    "1": [
+      {
+        "name": "effect_bundle_key",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "effect_key",
+        "type": "StringU16",
+        "key": true
+      },
+      {
+        "name": "value",
+        "type": "F32",
+        "key": false
+      }
+    ]
+  }
+}

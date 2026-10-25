@@ -38,10 +38,12 @@ public static class GameLayout {
     public const string PackageMagic = "S2UBPKG1";
     public const string DataPack = "data/data.pack";
     public const string StreamDeltaMinimum = "0.1.8-traits-test";
+    public const string StreamComposeMinimum = "0.1.11-collection-test";
+    public static readonly string[] PrivatePacks = { DataPack, "data/models.pack", "data/local_en.pack" };
     // The only files a schema-1 release may produce inside the managed folder.
     public static readonly string[] Destinations = { GameEngine, Bootstrap };
     public static bool AllowedDestination(string path, long schema) {
-        return Destinations.Contains(path, StringComparer.Ordinal) || (schema == 2 && path == DataPack);
+        return Destinations.Contains(path, StringComparer.Ordinal) || (schema == 2 && path == DataPack) || (schema == 3 && PrivatePacks.Contains(path, StringComparer.Ordinal));
     }
     // Files published from the managed folder into the game root.
     public static readonly string[] RootFiles = { Bootstrap, Launcher };
@@ -82,9 +84,11 @@ public sealed class Release {
             r.LauncherExe = ReadEntry(archive, "launcher.exe", 1024 * 1024);
         }
         long schema = J.N(r.Manifest, "schema");
-        if (schema != 1 && schema != 2) throw new InvalidDataException("This release needs a newer installer. Download the latest installer ZIP from GitHub.");
+        if (schema != 1 && schema != 2 && schema != 3) throw new InvalidDataException("This release needs a newer installer. Download the latest installer ZIP from GitHub.");
         if (schema == 2 && (!r.Manifest.ContainsKey("minimumInstallerVersion") || ReleaseVersion.Parse(J.S(r.Manifest, "minimumInstallerVersion")).CompareTo(ReleaseVersion.Parse(GameLayout.StreamDeltaMinimum)) < 0))
             throw new InvalidDataException("Schema-2 releases must specify the streaming installer compatibility requirement.");
+        if (schema == 3 && (!r.Manifest.ContainsKey("minimumInstallerVersion") || ReleaseVersion.Parse(J.S(r.Manifest, "minimumInstallerVersion")).CompareTo(ReleaseVersion.Parse(GameLayout.StreamComposeMinimum)) < 0))
+            throw new InvalidDataException("Schema-3 releases must specify the pack composition installer compatibility requirement.");
         if (r.Manifest.ContainsKey("minimumInstallerVersion") && ReleaseVersion.Parse(OnlineUpdates.AppVersion).CompareTo(ReleaseVersion.Parse(J.S(r.Manifest, "minimumInstallerVersion"))) < 0)
             throw new InvalidDataException("This release needs a newer installer. Download the latest installer ZIP from GitHub.");
         return r;
@@ -146,19 +150,18 @@ public sealed class Engine {
 
     static void ValidateFiles(Release r) {
         long schema = J.N(r.Manifest, "schema");
-        if (schema != 1 && schema != 2) throw new InvalidDataException("Unsupported release schema.");
+        if (schema != 1 && schema != 2 && schema != 3) throw new InvalidDataException("Unsupported release schema.");
         var destinations = new HashSet<string>(StringComparer.Ordinal);
         foreach (var f in Files(r)) {
             string destination = J.S(f, "destination");
             if (!GameLayout.AllowedDestination(destination, schema) || !destinations.Add(destination))
                 throw new InvalidDataException("Unsupported or duplicate release destination: " + destination);
-            bool streamed = f.ContainsKey("kind") && J.S(f, "kind") == "stream-delta";
-            if (destination == GameLayout.DataPack && (!streamed || schema != 2 || J.S(f, "source") != GameLayout.DataPack))
-                throw new InvalidDataException("Only an exact data/data.pack stream delta is supported.");
-            if (streamed && destination != GameLayout.DataPack)
-                throw new InvalidDataException("Streaming is restricted to the managed data pack.");
-            if (f.ContainsKey("kind") && !streamed && J.S(f, "kind") != "byte-delta")
-                throw new InvalidDataException("Unsupported release file kind.");
+            string kind = f.ContainsKey("kind") ? J.S(f, "kind") : "byte-delta";
+            bool pack = GameLayout.PrivatePacks.Contains(destination, StringComparer.Ordinal);
+            if (pack) {
+                if (J.S(f, "source") != destination || !((schema == 2 && destination == GameLayout.DataPack && kind == "stream-delta") || (schema == 3 && kind == "stream-compose")))
+                    throw new InvalidDataException("Managed packs require an exact supported source and streaming recipe.");
+            } else if (kind != "byte-delta") throw new InvalidDataException("Binary files require byte deltas.");
         }
     }
 
@@ -266,6 +269,117 @@ public sealed class Engine {
             return StreamDelta(input, Stream.Null, f, cancel);
     }
 
+    sealed class ComposeSegment {
+        public long Offset, Length;
+        public byte[] Data;
+    }
+
+    static long ComposeInteger(Dictionary<string, object> op, string key) {
+        object value;
+        if (!op.TryGetValue(key, out value) || !(value is int || value is long))
+            throw new InvalidDataException("Pack composition lengths and offsets must be JSON integers.");
+        return Convert.ToInt64(value);
+    }
+
+    static List<ComposeSegment> ComposeSegments(Dictionary<string, object> f, long sourceLength) {
+        const long maximum = 8L * 1024 * 1024 * 1024, payloadLimit = 48L * 1024 * 1024;
+        long length = ComposeInteger(f, "length"), total = 0, payload = 0;
+        if (length <= 0 || length > maximum || sourceLength <= 0 || sourceLength > maximum || !Sha256Text(J.S(f, "sourceSha256")) || !Sha256Text(J.S(f, "sha256")))
+            throw new InvalidDataException("Invalid pack composition length or SHA-256.");
+        var operations = J.Arr(f["segments"]);
+        if (operations.Length == 0 || operations.Length > 200000) throw new InvalidDataException("Invalid pack composition segment count.");
+        var result = new List<ComposeSegment>();
+        foreach (var item in operations) {
+            var op = J.Obj(item);
+            var segment = new ComposeSegment();
+            if (op.Count == 1 && op.ContainsKey("data")) {
+                string encoded = op["data"] as string;
+                if (encoded == null) throw new InvalidDataException("Pack composition data must be base64 text.");
+                if (encoded.Length > ((payloadLimit - payload + 2) / 3) * 4)
+                    throw new InvalidDataException("Pack composition payload exceeds its bounded limit.");
+                segment.Data = J.B(op, "data");segment.Length = segment.Data.LongLength;
+                payload += segment.Length;
+                if (payload > payloadLimit) throw new InvalidDataException("Pack composition payload exceeds its bounded limit.");
+            } else if (op.Count == 2 && op.ContainsKey("offset") && op.ContainsKey("length")) {
+                segment.Offset = ComposeInteger(op, "offset");segment.Length = ComposeInteger(op, "length");
+                if (segment.Offset < 0 || segment.Length <= 0 || segment.Length > sourceLength || segment.Offset > sourceLength - segment.Length)
+                    throw new InvalidDataException("Pack composition source range is outside its source.");
+            } else throw new InvalidDataException("Unknown pack composition segment shape.");
+            if (segment.Length <= 0 || segment.Length > length - total)
+                throw new InvalidDataException("Pack composition segment length exceeds its output.");
+            total += segment.Length;result.Add(segment);
+        }
+        if (total != length) throw new InvalidDataException("Pack composition segments do not match the output length.");
+        return result;
+    }
+
+    static void VerifyComposeSource(FileStream source, Dictionary<string, object> f, CancellationToken cancel) {
+        byte[] buffer = new byte[1024 * 1024];
+        using (var hash = SHA256.Create()) {
+            int count;
+            while ((count = source.Read(buffer, 0, buffer.Length)) != 0) {
+                cancel.ThrowIfCancellationRequested();hash.TransformBlock(buffer, 0, count, buffer, 0);
+            }
+            hash.TransformFinalBlock(new byte[0], 0, 0);
+            if (Hex(hash.Hash) != J.S(f, "sourceSha256")) throw new InvalidDataException("Pack composition source SHA-256 did not match.");
+        }
+        cancel.ThrowIfCancellationRequested();
+    }
+
+    static string Compose(FileStream source, Stream output, List<ComposeSegment> segments, CancellationToken cancel) {
+        byte[] buffer = new byte[1024 * 1024];
+        using (var hash = SHA256.Create()) {
+            foreach (var segment in segments) {
+                cancel.ThrowIfCancellationRequested();
+                if (segment.Data == null) source.Position = segment.Offset;
+                long remaining = segment.Length, position = 0;
+                while (remaining > 0) {
+                    cancel.ThrowIfCancellationRequested();
+                    int count = (int)Math.Min(buffer.Length, remaining);
+                    if (segment.Data == null) {
+                        count = source.Read(buffer, 0, count);
+                        if (count == 0) throw new EndOfStreamException("Source ended inside a pack composition segment.");
+                    } else Buffer.BlockCopy(segment.Data, (int)position, buffer, 0, count);
+                    hash.TransformBlock(buffer, 0, count, buffer, 0);output.Write(buffer, 0, count);
+                    position += count;remaining -= count;
+                }
+            }
+            hash.TransformFinalBlock(new byte[0], 0, 0);return Hex(hash.Hash);
+        }
+    }
+
+    /// <summary>Checks a variable-length pack composition using bounded streaming reads.</summary>
+    public static string StreamComposeHash(string source, Dictionary<string, object> f, CancellationToken cancel) {
+        cancel.ThrowIfCancellationRequested();
+        using (var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024)) {
+            var segments = ComposeSegments(f, input.Length);
+            VerifyComposeSource(input, f, cancel);
+            return Compose(input, Stream.Null, segments, cancel);
+        }
+    }
+
+    /// <summary>Creates a resized managed pack from verified vanilla ranges and signed literal bytes.</summary>
+    public static void PatchCompose(string source, string destination, Dictionary<string, object> f, CancellationToken cancel) {
+        if (String.Equals(Path.GetFullPath(source), Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("A pack composition may not overwrite its source.");
+        cancel.ThrowIfCancellationRequested();
+        bool created = false;
+        try {
+            using (var input = new FileStream(source, FileMode.Open, FileAccess.Read, FileShare.Read, 1024 * 1024)) {
+                var segments = ComposeSegments(f, input.Length);
+                VerifyComposeSource(input, f, cancel);
+                using (var output = new FileStream(destination, FileMode.CreateNew, FileAccess.Write, FileShare.None, 1024 * 1024, FileOptions.SequentialScan)) {
+                    created = true;
+                    if (Compose(input, output, segments, cancel) != J.S(f, "sha256")) throw new InvalidDataException("Pack composition output SHA-256 did not match.");
+                    output.Flush(true);
+                }
+            }
+        } catch {
+            if (created && File.Exists(destination)) File.Delete(destination);
+            throw;
+        }
+    }
+
     /// <summary>Creates a managed copy with same-size writes, verifying both sides; deletes its own partial output on failure.</summary>
     public static void PatchStream(string source, string destination, Dictionary<string, object> f, CancellationToken cancel) {
         if (String.Equals(Path.GetFullPath(source), Path.GetFullPath(destination), StringComparison.OrdinalIgnoreCase))
@@ -301,6 +415,8 @@ public sealed class Engine {
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
             if (f.ContainsKey("kind") && J.S(f, "kind") == "stream-delta")
                 PatchStream(Under(game, J.S(f, "source")), outputPath, f, Cancel);
+            else if (f.ContainsKey("kind") && J.S(f, "kind") == "stream-compose")
+                PatchCompose(Under(game, J.S(f, "source")), outputPath, f, Cancel);
             else {
                 byte[] patched = Patch(File.ReadAllBytes(Under(game, J.S(f, "source"))), f);
                 File.WriteAllBytes(outputPath, patched);
@@ -419,10 +535,10 @@ public sealed class Engine {
             RejectLinkedFile(record);
             var installed = J.Parse(File.ReadAllText(record));
             long installedSchema = J.N(installed, "schema");
-            if (installedSchema != 1 && installedSchema != 2) throw new InvalidDataException("Unrecognized installation record; nothing was removed.");
+            if (installedSchema != 1 && installedSchema != 2 && installedSchema != 3) throw new InvalidDataException("Unrecognized installation record; nothing was removed.");
             var files = J.Arr(installed["files"]).Select(J.Obj).Select(x => J.S(x, "file")).ToArray();
             if (files.Any(x => !GameLayout.AllowedDestination(x, installedSchema)) || files.Distinct(StringComparer.Ordinal).Count() != files.Length) throw new InvalidDataException("Unexpected installed file paths; nothing was removed.");
-            if (installedSchema == 2) foreach (var file in J.Arr(installed["files"]).Select(J.Obj)) {
+            if (installedSchema >= 2) foreach (var file in J.Arr(installed["files"]).Select(J.Obj)) {
                 string path = Under(live, J.S(file, "file"));
                 RejectLinkedFile(path);NoLinks(Path.GetDirectoryName(path));
                 if (!file.ContainsKey("sha256") || !Sha256Text(J.S(file, "sha256")) || (File.Exists(path) && FileHash(path) != J.S(file, "sha256")))

@@ -1,4 +1,4 @@
-"""Generate a disabled, data.pack-only OG CreateFileW redirect recipe.
+"""Generate a disabled, three-pack OG CreateFileW redirect recipe.
 
 Never changes a game file. Requires exact vanilla engine input, checks all import
 call operands/relocations and rejects overlaps with other enabled recipes.
@@ -11,6 +11,7 @@ import struct
 
 SHA256 = '022fae2e2da92b59b8b1b8ee52887003c624e3c8eca060b209f5d792a7f874f5'
 STUB, WRAPPER, TABLE, STRINGS, IAT = 0x115A0C40, 0x115A0C4A, 0x115A0D78, 0x11793AE8, 0x115A1144
+PATHS = ((STRINGS, 'data.pack'), (0x11793B80, 'models.pack'), (0x11793BBE, 'local_en.pack'))
 WRITE_ACCESS_MASK = 0x530D0156  # write/all, maximum-allowed/security access, delete/DAC/owner and file writes
 
 
@@ -85,7 +86,7 @@ def main():
     emit('8b 44 24 04 8b 40 08 01 f8 89 44 24 1c 83 c4 0c')
     branch('e9', 'finish', 4)
     label('next_compare'); emit('58')
-    label('next'); emit('58 43 83 fb 01'); branch('0f82', 'entry', 4)
+    label('next'); emit('58 43 83 fb 03'); branch('0f82', 'entry', 4)
     emit('5a')
     label('finish'); emit('8b 87'); code.extend(struct.pack('<I', IAT - anchor))
     emit('5b 5f 5e ff e0')
@@ -95,10 +96,12 @@ def main():
     if len(code) != 210 or WRAPPER + len(code) > 0x115A0D20:
         raise ValueError('Wrapper would overlap naval adapter')
 
-    path = 'UltimatePatch\\data\\data.pack'
-    strings = (path + '\0').encode('utf-16le')
-    pattern = STRINGS + len('UltimatePatch\\'.encode('utf-16le'))
-    table = struct.pack('<III', len('data\\data.pack') + 1, pattern - anchor, STRINGS - anchor)
+    strings = [(address, ('UltimatePatch\\data\\' + name + '\0').encode('utf-16le')) for address, name in PATHS]
+    table = b''.join(struct.pack('<III', len('data\\' + name) + 1,
+                                 address + len('UltimatePatch\\'.encode('utf-16le')) - anchor,
+                                 address - anchor) for address, name in PATHS)
+    if TABLE + len(table) > 0x115A0DA0 or strings[1][0] + len(strings[1][1]) != strings[2][0] or strings[2][0] + len(strings[2][1]) != 0x11793C00:
+        raise ValueError('Three-pack table/string reservation bounds changed')
     loader = bytes.fromhex('e8 00 00 00 00 5b 8d 5b 05 c3')
     writes = []
 
@@ -109,16 +112,16 @@ def main():
 
     if STRINGS != base + rdata[2] + rdata[1]:
         raise ValueError('Unexpected original .rdata end')
-    # Reserve the adjacent zero padding through 3B80 for adapter100 as well.
-    # Keep one owner for the shared VirtualSize header write.
-    new_rdata_size = max(STRINGS + len(strings), 0x11793B80) - base - rdata[2]
+    # Keep adapter100's 3B30..3B76 reservation intact and map the remaining raw
+    # padding through 3BFF for the two additional paths. One header owner only.
+    new_rdata_size = 0x11793C00 - base - rdata[2]
     if new_rdata_size > rdata[3]:
         raise ValueError('String exceeds existing raw padding')
-    add(rdata[5] + 8, struct.pack('<I', new_rdata_size), 'Map the shadow path and adjacent reserved adapter100 zero padding within existing raw .rdata', True)
+    add(rdata[5] + 8, struct.pack('<I', new_rdata_size), 'Map three shadow paths and reserved adapter100 padding within existing raw .rdata', True)
     for address, value, note in [(STUB, loader, 'PIC loader for original mov ebx,[CreateFileW] site'),
-                                 (WRAPPER, code, 'Data.pack-only read-only OPEN_EXISTING wrapper, PIC'),
-                                 (TABLE, table, 'Exactly one match-table entry; no models/local_en redirects'),
-                                 (STRINGS, strings, 'UTF-16 UltimatePatch\\data\\data.pack; pattern reuses its suffix')]:
+                                 (WRAPPER, code, 'Three-pack read-only OPEN_EXISTING wrapper, PIC'),
+                                 (TABLE, table, 'Three exact suffix match entries: data, models, local_en')] + [
+                                 (address, value, 'UTF-16 shadow path; match pattern reuses its suffix') for address, value in strings]:
         if raw[offset(address):offset(address) + len(value)] != bytes(len(value)):
             raise ValueError('Cave/string data is not original zero padding')
         add(address, value, note)
@@ -174,13 +177,13 @@ def main():
         raise ValueError('Current enabled 000 recipe does not map wrapper/table')
     recipe = {
         'id': 'data-pack-redirect',
-        'title': ('Read the managed data.pack shadow only' if args.enable else 'DISABLED candidate: read the managed data.pack shadow only'),
-        'description': 'Redirect only read-only OPEN_EXISTING CreateFileW requests whose case-insensitive path suffix is data\\data.pack, with a directory boundary, to UltimatePatch\\data\\data.pack. All models.pack, local_en.pack and other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call the original IAT function. PIC wrapper C4A..D1B, loader C40..C49, one table entry D78..D83; disjoint from naval D20..D76 and rank DA0..DF9. Store 58 path-string bytes in original raw .rdata padding; map adjacent reserved padding through 0x11793B7F for adapter100. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.',
+        'title': ('Read three managed pack shadows' if args.enable else 'DISABLED candidate: read three managed pack shadows'),
+        'description': 'Redirect read-only OPEN_EXISTING CreateFileW requests for exact case-insensitive data\\data.pack, data\\models.pack and data\\local_en.pack suffixes with directory boundaries to their UltimatePatch shadows. Other paths pass through. Reject write/delete/ownership/DAC, MAXIMUM_ALLOWED and ACCESS_SYSTEM_SECURITY access. Preserve Win32 stack arguments and nonvolatile registers; tail-call original IAT function. PIC wrapper C4A..D1B, loader C40..C49, three table entries D78..D9B, disjoint from naval D20..D76 and rank DA0..DF9. UTF-16 paths occupy original zero padding 11793AE8..3B21 and 11793B80..3BFF, preserving fear adapter100 at 3B30..3B76. Map existing raw .rdata through 11793BFF. Neutralize all16 old absolute IAT operand relocations. Generated from exact supported original engine; no game files modified.',
         'enabled': args.enable,
         'writes': writes,
     }
     (folder / '090-data-pack-redirect.json').write_text(json.dumps(recipe, indent=2) + '\n', encoding='utf-8')
-    print('Generated', 'ENABLED' if args.enable else 'DISABLED', 'data.pack-only redirect:', len(code), 'wrapper bytes;', counts, 'import sites; no game file modified.')
+    print('Generated', 'ENABLED' if args.enable else 'DISABLED', 'three-pack redirect:', len(code), 'wrapper bytes;', counts, 'import sites; no game file modified.')
 
 
 if __name__ == '__main__':

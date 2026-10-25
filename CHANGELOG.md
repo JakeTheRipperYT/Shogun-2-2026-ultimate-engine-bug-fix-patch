@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.11-collection-test
+
+- Integrate only the selected collection fixes; see [scope and attribution](docs/selected-collection-0.1.11.md). Keep original ninja IDs and set all eight variants to 2 ammo. Preserve current progressive traits and fear values.
+- Add signed schema-3 streaming reconstruction of private data, models and English localisation packs. Launcher checks all three; original game files remain intact.
+- Extend private pack redirection with native path/access/ABI/ASLR checks. Add archive-wide and field-level validation plus installer upgrade, failure and uninstall checks. Gameplay validation remains pending.
+
 ## 0.1.10-fear-values-test
 
 - Apply the user's revised War Is Slaughter/Bloodthirsty/Blood Soaked progression: -4/-5/-6 enemy morale.

@@ -329,6 +329,7 @@ static class SelfTests {
         Expect<InvalidDataException>(() => Engine.Patch(source, spec), "Unverified patch output accepted.");
         results.Add("PASS: byte writes, file growth and output verification");
         StreamTests(results);
+        ComposeTests(results);
 
         if (Release.HasEmbedded()) {
             var release = Release.Load(null);
@@ -554,7 +555,7 @@ static class SelfTests {
             using (var rsa = new RSACryptoServiceProvider(2048)) {
                 string key = rsa.ToXmlString(false);
                 Release.Parse(SignedSchemaFixture(rsa, 1, "0.1.0-preview"), key);
-                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 3, GameLayout.StreamDeltaMinimum), key), "Unknown release schema accepted.");
+                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 4, GameLayout.StreamDeltaMinimum), key), "Unknown release schema accepted.");
                 Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 2, null), key), "Schema-2 compatibility guard omitted.");
                 Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 2, "0.1.0-preview"), key), "Schema-2 old installer guard accepted.");
                 if (ReleaseVersion.Parse(OnlineUpdates.AppVersion).CompareTo(ReleaseVersion.Parse(GameLayout.StreamDeltaMinimum)) >= 0)
@@ -563,6 +564,99 @@ static class SelfTests {
                 results.Add("PASS: signed schema compatibility accepts legacy releases and enforces schema-2 installer minimum");
             }
         } finally { Cleanup(root, "S2UB-stream-test-"); }
+    }
+
+    static void ComposeTests(List<string> results) {
+        string root = Path.Combine(Path.GetTempPath(), "S2UB-compose-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(root);
+        try {
+            byte[] original = new byte[2 * 1024 * 1024 + 31];
+            for (int i = 0; i < original.Length; i++) original[i] = (byte)(i * 13 + 7);
+            byte[] literal = Encoding.ASCII.GetBytes("new archive index and a resized table");
+            byte[] expected = original.Skip(1024 * 1024 - 1).Take(1024 * 1024 + 17).Concat(literal).Concat(original.Take(53)).ToArray();
+            var spec = new Dictionary<string, object> {
+                { "kind", "stream-compose" }, { "source", GameLayout.DataPack }, { "destination", GameLayout.DataPack },
+                { "length", (long)expected.Length }, { "sourceSha256", Engine.Hash(original) }, { "sha256", Engine.Hash(expected) },
+                { "segments", new object[] {
+                    new Dictionary<string, object> { { "offset", 1024 * 1024 - 1 }, { "length", 1024 * 1024 + 17 } },
+                    new Dictionary<string, object> { { "data", Convert.ToBase64String(literal) } },
+                    new Dictionary<string, object> { { "offset", 0 }, { "length", 53 } }
+                } }
+            };
+            string source = Path.Combine(root, "source.pack"), output = Path.Combine(root, "output.pack");
+            File.WriteAllBytes(source, original);
+            if (Engine.StreamComposeHash(source, spec, CancellationToken.None) != Engine.Hash(expected)) throw new Exception("Composition hash failed.");
+            Engine.PatchCompose(source, output, spec, CancellationToken.None);
+            if (Engine.FileHash(output) != Engine.Hash(expected) || Engine.FileHash(source) != Engine.Hash(original)) throw new Exception("Composition reconstruction changed source or output.");
+            results.Add("PASS: variable-length pack composition copies reordered ranges across buffers, inserts literals and preserves source");
+            File.Delete(output);
+            foreach (string problem in new[] { "negative", "outside", "zero", "shape", "empty", "sum", "source", "output", "fraction", "large", "segments" }) {
+                var wrong = Clone(spec);
+                var first = J.Obj(J.Arr(wrong["segments"])[0]);
+                if (problem == "negative") first["offset"] = -1;
+                if (problem == "outside") first["offset"] = original.Length;
+                if (problem == "zero") first["length"] = 0;
+                if (problem == "shape") first["data"] = "AQ==";
+                if (problem == "empty") J.Obj(J.Arr(wrong["segments"])[1])["data"] = "";
+                if (problem == "sum") wrong["length"] = expected.Length + 1;
+                if (problem == "source") wrong["sourceSha256"] = new string('0', 64);
+                if (problem == "output") wrong["sha256"] = new string('0', 64);
+                if (problem == "fraction") first["offset"] = 0.5;
+                if (problem == "large") wrong["length"] = 8L * 1024 * 1024 * 1024 + 1;
+                if (problem == "segments") wrong["segments"] = Enumerable.Repeat((object)first, 200001).ToArray();
+                Expect<InvalidDataException>(() => Engine.PatchCompose(source, output, wrong, CancellationToken.None), "Malformed composition accepted: " + problem);
+                if (File.Exists(output)) throw new Exception("Failed composition kept output: " + problem);
+            }
+            Expect<OperationCanceledException>(() => Engine.PatchCompose(source, output, spec, new CancellationToken(true)), "Composition cancellation ignored.");
+            File.WriteAllText(output, "foreign output");
+            Expect<IOException>(() => Engine.PatchCompose(source, output, spec, CancellationToken.None), "Existing composition output overwritten.");
+            if (File.ReadAllText(output) != "foreign output") throw new Exception("Foreign composition output was deleted.");
+            Expect<InvalidDataException>(() => Engine.PatchCompose(source, source, spec, CancellationToken.None), "Composition source overwritten.");
+            results.Add("PASS: composition rejects malformed ranges/shapes/lengths/hashes, cleans failed output and protects existing files");
+
+            string game = Path.Combine(root, "game");Directory.CreateDirectory(Engine.Under(game, "data"));
+            byte[] exe = Encoding.ASCII.GetBytes("vanilla exe"), dll = Encoding.ASCII.GetBytes("vanilla dll");
+            File.WriteAllBytes(Engine.Under(game, GameLayout.GameExe), exe);File.WriteAllBytes(Engine.Under(game, GameLayout.GameEngine), dll);
+            foreach (string pack in GameLayout.PrivatePacks) File.WriteAllBytes(Engine.Under(game, pack), original);
+            var engineSpec = SmallFile(GameLayout.GameEngine, GameLayout.GameEngine, dll, Encoding.ASCII.GetBytes("patched dll"));
+            var bootstrapSpec = SmallFile(GameLayout.GameExe, GameLayout.Bootstrap, exe, Encoding.ASCII.GetBytes("bootstrap"));
+            var files = new List<object> { engineSpec, bootstrapSpec };
+            foreach (string pack in GameLayout.PrivatePacks) {
+                var copy = Clone(spec);copy["source"] = pack;copy["destination"] = pack;files.Add(copy);
+            }
+            var legacy = new Release { PackageHash = new string('1', 64), LauncherExe = Encoding.ASCII.GetBytes("launcher"), Manifest = new Dictionary<string, object> {
+                { "schema", 2 }, { "version", "0.1.10-fear-values-test" }, { "files", new object[] { engineSpec, bootstrapSpec } }
+            } };
+            var composed = new Release { PackageHash = new string('2', 64), LauncherExe = legacy.LauncherExe, Manifest = new Dictionary<string, object> {
+                { "schema", 3 }, { "version", GameLayout.StreamComposeMinimum }, { "minimumInstallerVersion", GameLayout.StreamComposeMinimum }, { "files", files.ToArray() }
+            } };
+            var installer = new Engine { IgnoreRunningGame = true };
+            installer.Install(legacy, game);installer.Install(composed, game);
+            string live = Engine.Under(game, GameLayout.Folder);
+            foreach (string pack in GameLayout.PrivatePacks) if (Engine.FileHash(Engine.Under(live, pack)) != Engine.Hash(expected)) throw new Exception("Composed pack upgrade failed.");
+            var bad = new Release { PackageHash = composed.PackageHash, LauncherExe = composed.LauncherExe, Manifest = Clone(composed.Manifest) };
+            J.Obj(J.Arr(bad.Manifest["files"])[3])["sha256"] = new string('0', 64);
+            Expect<InvalidDataException>(() => installer.Install(bad, game), "Bad composed update published.");
+            if (Engine.InstalledVersion(game) != composed.Version || Directory.GetDirectories(game, GameLayout.StagingPrefix + "*").Length != 0)
+                throw new Exception("Failed composed update changed live state or retained stage.");
+            foreach (string pack in GameLayout.PrivatePacks) if (Engine.FileHash(Engine.Under(live, pack)) != Engine.Hash(expected)) throw new Exception("Failed composed update changed installed pack.");
+            results.Add("PASS: schema-2 installation upgrades to three schema-3 packs and a failed composition preserves the previous build");
+            string models = Engine.Under(live, "data/models.pack");File.WriteAllText(models, "foreign pack");
+            Expect<IOException>(() => installer.Uninstall(game), "Uninstall removed modified composed pack.");
+            if (!File.Exists(Engine.Under(game, GameLayout.Launcher))) throw new Exception("Ownership rejection removed root launcher.");
+            File.WriteAllBytes(models, expected);installer.Uninstall(game);
+            foreach (string pack in GameLayout.PrivatePacks) if (File.Exists(Engine.Under(live, pack)) || Engine.FileHash(Engine.Under(game, pack)) != Engine.Hash(original)) throw new Exception("Composed uninstall modified vanilla or retained managed pack.");
+            results.Add("PASS: schema-3 uninstall checks all pack ownership and removes managed packs while retaining originals");
+            using (var rsa = new RSACryptoServiceProvider(2048)) {
+                string key = rsa.ToXmlString(false);
+                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 3, null), key), "Schema-3 omitted minimum accepted.");
+                Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 3, GameLayout.StreamDeltaMinimum), key), "Schema-3 old installer minimum accepted.");
+                if (ReleaseVersion.Parse(OnlineUpdates.AppVersion).CompareTo(ReleaseVersion.Parse(GameLayout.StreamComposeMinimum)) >= 0)
+                    Release.Parse(SignedSchemaFixture(rsa, 3, GameLayout.StreamComposeMinimum), key);
+                else Expect<InvalidDataException>(() => Release.Parse(SignedSchemaFixture(rsa, 3, GameLayout.StreamComposeMinimum), key), "Old installer accepted composition package.");
+            }
+            results.Add("PASS: signed schema-3 releases require the composition installer version");
+        } finally { Cleanup(root, "S2UB-compose-test-"); }
     }
 }
 }
