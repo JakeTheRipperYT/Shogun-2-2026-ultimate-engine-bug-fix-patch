@@ -1,0 +1,73 @@
+{
+  "id": "single-unit-groups",
+  "title": "Allow single-unit battle groups",
+  "description": "Allow one-card land/naval groups through actual creator/UI gates; retain nonempty one-card groups after removal; show their group frame using the ordinary single-row path even in compact mode. Zero selections/empty groups remain rejected or removed, the original zero-removal callback path is preserved, existing max-group checks and multi-unit compact layout remain unchanged. New 16-byte relative frame adapter resides in its own RX .ubfix section; no absolute operand or relocation added. Requires guarded recipe append support. Candidate pending controlled battle testing.",
+  "enabled": true,
+  "sourceSha256": "022fae2e2da92b59b8b1b8ee52887003c624e3c8eca060b209f5d792a7f874f5",
+  "writes": [
+    {
+      "va": "0x11101a3a",
+      "expect": "01",
+      "bytes": "00",
+      "note": "Allow one selected land unit; preserve zero-selection/capacity rejection"
+    },
+    {
+      "va": "0x11102dc8",
+      "expect": "01",
+      "bytes": "00",
+      "note": "Allow one selected ship; preserve zero-selection/capacity rejection"
+    },
+    {
+      "va": "0x10f89a46",
+      "expect": "01",
+      "bytes": "00",
+      "note": "Allow UICardManager creation from one selected card; preserve empty rejection"
+    },
+    {
+      "va": "0x11223482",
+      "expect": "01",
+      "bytes": "00",
+      "note": "Show group frame for one card; preserve empty-frame hide path"
+    },
+    {
+      "va": "0x10f9787f",
+      "expect": "77",
+      "bytes": "73",
+      "note": "Retain >=1 members using JAE; original CMP flags and zero-removal cleanup remain unchanged"
+    },
+    {
+      "va": "0x112234a0",
+      "expect": "80 7c 24 68 00",
+      "bytes": "e9 5b 4b b6 00",
+      "note": "Relative detour to one-card ordinary-frame adapter; displaced CMP replayed for >=2"
+    },
+    {
+      "offset": "0x166",
+      "expect": "06 00",
+      "bytes": "07 00",
+      "note": "Append exactly one owned .ubfix code section"
+    },
+    {
+      "offset": "0x17c",
+      "expect": "00 fe 59 01",
+      "bytes": "00 00 5a 01",
+      "note": "Account for new aligned code section in SizeOfCode"
+    },
+    {
+      "offset": "0x1b0",
+      "expect": "00 80 d8 01",
+      "bytes": "00 90 d8 01",
+      "note": "Map the appended section in SizeOfImage"
+    },
+    {
+      "offset": "0x348",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "2e 75 62 66 69 78 00 00 10 00 00 00 00 80 d8 01 00 02 00 00 00 94 89 01 00 00 00 00 00 00 00 00 00 00 00 00 20 00 00 60",
+      "note": "New 16-byte RX/non-writable .ubfix section, one 512-byte raw page"
+    }
+  ],
+  "append": {
+    "offset": "0x1899400",
+    "bytes": "83 7d 04 01 74 05 80 7c 24 68 00 e9 95 b4 49 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00"
+  }
+}

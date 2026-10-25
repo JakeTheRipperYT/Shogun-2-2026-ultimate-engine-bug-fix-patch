@@ -33,3 +33,5 @@
 - Add Mori Medium Bune recruitment at the Harbour, matching the ordinary variant’s earliest recruitment port.
 - Increase Mori Nanban Trade Ship base campaign movement from **40 to 65**, matching the Nanban ship available to Otomo.
 - Increase Ikko monk agent base movement from **20 to 30**, matching regular monks.
+- Allow player battle groups containing one land unit or ship.
+- Retain groups with one remaining member and show single-member group frames safely in compact UI mode.

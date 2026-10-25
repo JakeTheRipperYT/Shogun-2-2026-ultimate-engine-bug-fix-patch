@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.15-single-groups-test
+
+- Allow player battle groups containing one land unit or ship.
+- Retain groups with one member after removals; preserve empty-group cleanup and the maximum group limit.
+- Display single-member group frames with the existing ordinary layout, including compact UI mode.
+- Add a guarded RX section for the 16-byte frame adapter and bounded recipe append support. Preserve earlier fixes and all data packs. See [implementation and testing](docs/single-unit-groups-0.1.15.md).
+
 ## 0.1.14-campaign-parity-test
 
 - Add the missing Mori Medium Bune Harbour recruitment row, matching the ordinary variant's earliest port tier.

@@ -22,6 +22,7 @@ static class ReleaseTool {
             var o = Options(args.Skip(1).ToArray());
             switch (args[0]) {
                 case "keygen": Keygen(o); break;
+                case "self-test-engine": EnginePatches.SelfTest(); break;
                 case "make": Make(o); break;
                 case "verify": Verify(args[1]); break;
                 default: throw new ArgumentException("Unknown command " + args[0]);
@@ -408,12 +409,14 @@ static class Bootstrap {
 static class EnginePatches {
     public static byte[] Apply(byte[] vanilla, string folder, List<Dictionary<string, object>> applied) {
         byte[] b = (byte[])vanilla.Clone();
-        var pe = new Pe(b);
+        var pe = new Pe(vanilla);
         var owner = new Dictionary<int, string>();
         foreach (string file in Directory.Exists(folder) ? Directory.GetFiles(folder, "*.json").OrderBy(x => x, StringComparer.Ordinal).ToArray() : new string[0]) {
             var p = J.Parse(File.ReadAllText(file));
             string id = J.S(p, "id");
             if (p.ContainsKey("enabled") && !Convert.ToBoolean(p["enabled"])) { Console.WriteLine("  skipped (disabled): " + id); continue; }
+            if (p.ContainsKey("sourceSha256") && J.S(p, "sourceSha256") != Engine.Hash(vanilla))
+                throw new InvalidDataException(id + ": unsupported original engine SHA-256.");
             foreach (var w in J.Arr(p["writes"]).Select(J.Obj)) {
                 // "va" addresses code/data as Ghidra shows it; "offset" is a raw file offset (PE headers).
                 string at = w.ContainsKey("va") ? J.S(w, "va") : "file+" + J.S(w, "offset");
@@ -428,6 +431,10 @@ static class EnginePatches {
                 }
                 byte[] expect = HexBytes(J.S(w, "expect")), bytes = HexBytes(J.S(w, "bytes"));
                 if (expect.Length != bytes.Length || bytes.Length == 0) throw new InvalidDataException(id + " @" + at + ": expect and bytes must be the same non-zero length.");
+                if (off < 0 || off > vanilla.Length - bytes.Length)
+                    throw new InvalidDataException(id + " @" + at + ": write exceeds original engine.");
+                if (!w.ContainsKey("va") && off + bytes.Length > pe.Raw(pe.Section(".text")))
+                    throw new InvalidDataException(id + " @" + at + ": header write crosses into section data.");
                 for (int i = 0; i < expect.Length; i++) {
                     if (vanilla[off + i] != expect[i]) throw new InvalidDataException(id + " @" + at + ": vanilla bytes differ from 'expect'. Wrong game build or wrong address.");
                     string other;
@@ -436,10 +443,71 @@ static class EnginePatches {
                 }
                 Buffer.BlockCopy(bytes, 0, b, off, bytes.Length);
             }
+            if (p.ContainsKey("append")) {
+                var append = J.Obj(p["append"]);
+                if (append.Count != 2 || !append.ContainsKey("offset") || !append.ContainsKey("bytes"))
+                    throw new InvalidDataException(id + ": unsupported append shape.");
+                uint offset = ParseVa(J.S(append, "offset"));
+                byte[] payload = HexBytes(J.S(append, "bytes"));
+                if (offset != vanilla.Length || b.Length != vanilla.Length || payload.Length == 0 || payload.Length > 65536)
+                    throw new InvalidDataException(id + ": only one bounded append at the original EOF is permitted.");
+                Array.Resize(ref b, checked(vanilla.Length + payload.Length));
+                Buffer.BlockCopy(payload, 0, b, vanilla.Length, payload.Length);
+            }
             applied.Add(new Dictionary<string, object> { { "id", id }, { "title", J.S(p, "title") } });
             Console.WriteLine("  applied: " + id);
         }
         return b;
+    }
+
+    public static void SelfTest() {
+        string folder = Path.Combine(Path.GetTempPath(), "engine-append-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(folder);
+        try {
+            byte[] original = new byte[0x600];
+            Action<int, uint> put = (at, value) => Buffer.BlockCopy(BitConverter.GetBytes(value), 0, original, at, 4);
+            put(0x3c, 0x80);put(0x80, 0x4550);put(0x84, 0x0001014c);put(0x94, 0xe0);
+            put(0x98 + 28, 0x10000000);
+            Buffer.BlockCopy(Encoding.ASCII.GetBytes(".text"), 0, original, 0x178, 5);
+            put(0x180, 0x200);put(0x184, 0x1000);put(0x188, 0x200);put(0x18c, 0x400);
+            string sourceHash = Engine.Hash(original);
+            Func<Dictionary<string, object>> recipe = () => new Dictionary<string, object> {
+                { "id", "fixture" }, { "title", "fixture" }, { "sourceSha256", sourceHash },
+                { "writes", new object[] { new Dictionary<string, object> { { "va", "0x10001000" }, { "expect", "00" }, { "bytes", "90" } } } }
+            };
+            Action<Dictionary<string, object>> save = r => File.WriteAllText(Path.Combine(folder, "010.json"), J.Json().Serialize(r));
+            Func<Dictionary<string, object>, bool> rejected = r => {
+                save(r);
+                try { Apply(original, folder, new List<Dictionary<string, object>>()); return false; }
+                catch (InvalidDataException) { return true; }
+            };
+            var legacy = recipe();save(legacy);
+            byte[] output = Apply(original, folder, new List<Dictionary<string, object>>());
+            if (output.Length != original.Length || output[0x400] != 0x90 || Engine.Hash(original) != sourceHash)
+                throw new Exception("Legacy recipe regression.");
+            var valid = recipe();valid["append"] = new Dictionary<string, object> { { "offset", "0x600" }, { "bytes", "90 c3" } };save(valid);
+            output = Apply(original, folder, new List<Dictionary<string, object>>());
+            if (output.Length != original.Length + 2 || output[0x600] != 0x90 || output[0x601] != 0xc3 || Engine.Hash(original) != sourceHash)
+                throw new Exception("Engine append did not preserve original/write/append bytes.");
+            foreach (var bad in new[] {
+                new Dictionary<string, object> { { "offset", "0x5ff" }, { "bytes", "90" } },
+                new Dictionary<string, object> { { "offset", "0x601" }, { "bytes", "90" } },
+                new Dictionary<string, object> { { "offset", "0x600" }, { "bytes", "" } },
+                new Dictionary<string, object> { { "offset", "0x600" }, { "bytes", new string('0', 65537 * 2) } },
+                new Dictionary<string, object> { { "offset", "0x600" }, { "bytes", "90" }, { "unexpected", 1 } },
+                new Dictionary<string, object> { { "offset", "0x600" }, { "bytes", "gg" } }
+            }) { var r = recipe();r["append"] = bad;if (!rejected(r)) throw new Exception("Malformed engine append accepted."); }
+            var badHash = recipe();badHash["sourceSha256"] = new string('0', 64);
+            if (!rejected(badHash)) throw new Exception("Unsupported source fingerprint accepted.");
+            var badRange = recipe();badRange["writes"] = new object[] { new Dictionary<string, object> { { "offset", "0x3ff" }, { "expect", "00 00" }, { "bytes", "90 90" } } };
+            if (!rejected(badRange)) throw new Exception("Header write crossed into section data.");
+            save(valid);var second = recipe();second["id"] = "second";second["writes"] = new object[0];second["append"] = valid["append"];
+            File.WriteAllText(Path.Combine(folder, "020.json"), J.Json().Serialize(second));
+            bool duplicate = false;
+            try { Apply(original, folder, new List<Dictionary<string, object>>()); } catch (InvalidDataException) { duplicate = true; }
+            if (!duplicate || Engine.Hash(original) != sourceHash) throw new Exception("Duplicate append/source preservation failed.");
+            Console.WriteLine("PASS engine recipe legacy writes, bounded EOF append, malformed ranges/payloads, source guards and original preservation.");
+        } finally { Directory.Delete(folder, true); }
     }
 
     static uint ParseVa(string s) {
@@ -449,6 +517,7 @@ static class EnginePatches {
     }
 
     static byte[] HexBytes(string s) {
+        if (s.Any(c => !Uri.IsHexDigit(c) && !Char.IsWhiteSpace(c))) throw new InvalidDataException("Invalid hexadecimal bytes.");
         s = new string(s.Where(Uri.IsHexDigit).ToArray());
         if (s.Length % 2 != 0) throw new InvalidDataException("Odd number of hex digits: " + s);
         return Enumerable.Range(0, s.Length / 2).Select(i => Convert.ToByte(s.Substring(i * 2, 2), 16)).ToArray();

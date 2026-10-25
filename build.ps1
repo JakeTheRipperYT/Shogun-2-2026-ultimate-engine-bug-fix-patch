@@ -21,6 +21,7 @@ param(
     [switch]$SkipTests
 )
 $ErrorActionPreference = 'Stop'
+$env:PYTHONDONTWRITEBYTECODE = '1'
 $root = $PSScriptRoot
 $build = Join-Path $root 'build'
 $dist = Join-Path $root 'dist'
@@ -98,6 +99,9 @@ try {
     }
     if (-not (Test-Path $publicKey)) { throw 'No signing key yet. Run .\build.ps1 -Keygen once.' }
     Run $csc ($cscCommon + @('/target:exe', "/out:$tool", "/resource:$publicKey,publicKey", 'tools\ReleaseTool.cs', 'installer\Engine.cs', 'installer\OnlineUpdates.cs'))
+
+    Run $tool @('self-test-engine')
+    Run $Python @((Join-Path $root 'tools\generate-single-unit-groups.py'), '--engine', (Join-Path $GameDir 'empire.retail.dll'), '--check')
 
     # --- Release package ---------------------------------------------------------------------
     Step "Release $Version from $GameDir (Steam build $gameBuild)"
@@ -195,6 +199,15 @@ if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\100-fear-
     & $fearTest (Join-Path $GameDir 'empire.retail.dll') (Join-Path $build 'dev\empire.retail.dll') |
         Tee-Object -FilePath (Join-Path $build 'fear-stacking-tests.txt') | Out-Host
     if ($LASTEXITCODE -ne 0) { throw 'Fear native checks failed.' }
+}
+
+if (-not $SkipTests -and (Get-Content (Join-Path $root 'patches\engine\110-single-unit-groups.json') -Raw | ConvertFrom-Json).enabled) {
+    Step 'Single-unit group UI, creator, lifetime and frame dispatch at three ASLR bases'
+    & $Python -B (Join-Path $root 'tools\test-single-unit-groups.py') --vanilla (Join-Path $GameDir 'empire.retail.dll') --dll (Join-Path $build 'dev\empire.retail.dll') |
+        Tee-Object -FilePath (Join-Path $build 'single-unit-group-tests.txt') | Out-Host
+    if ($LASTEXITCODE -ne 0) { throw 'Single-unit group fixtures failed.' }
+    Step 'Unchanged group command serializer and receiver checks'
+    Run $Python @('-B', (Join-Path $root 'tools\test-single-unit-group-command.py'), (Join-Path $GameDir 'empire.retail.dll'), (Join-Path $build 'dev\empire.retail.dll'), '--report', (Join-Path $build 'single-unit-group-command-tests.json'))
 }
 
 Step 'Package'

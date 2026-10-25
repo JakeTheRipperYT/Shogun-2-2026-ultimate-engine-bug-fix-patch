@@ -15,3 +15,5 @@ The user also explicitly authorized the three unit-access changes in docs/unit-a
 Current focused task: user explicitly requests the Armstrong smoke effect for FOTS Parrott guns. Change only the missing launch_particle_effect reference; do not import collection gun_type/audio edits. User confirmed 0.1.12 works.
 
 User-authorized 0.1.14 scope: Mori Medium Bune Harbour recruitment, Mori Nanban base campaign AP65, Ikko monk base AP30, as documented in docs/campaign-parity-0.1.14.md. Preserve all prior fixes and normal campaign bonus calculations.
+
+User-authorized 0.1.15 scope: single-unit player battle groups, including land/naval UI eligibility, actual creator, nonempty group retention and safe singleton frame layout. Core battle group commands/movement already accept one. Preserve zero-selection/empty cleanup/max-capacity guards, scripting unit-controller limits and unrelated AI checks. See docs/single-unit-groups-0.1.15.md.

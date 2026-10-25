@@ -35,3 +35,7 @@ New code goes in the zero padding at the end of `.text` (starting at VA `0x115A0
 `build.ps1` writes the patched DLL to `build\dev\empire.retail.dll` for checking in Ghidra or x32dbg. The signed release stores only the byte differences against vanilla. The installer re-applies them to each player's own vanilla DLL and verifies the result by SHA-256.
 
 
+
+### Owned section append
+
+A developer engine recipe may contain `sourceSha256` to require the exact original image, plus one `append` object with `offset` (hex original EOF) and `bytes` (hex payload). Exactly one append of 1..65536 bytes is allowed across enabled recipes. It cannot overwrite source data or be followed by a second append. Existing VA writes are resolved against the original section map; guarded header writes add the new RX section. The normal signed byte-delta builder round-trips the complete grown image through the installer before signing. Recipe110 uses a 512-byte aligned `.ubfix` section for its 16-byte relative frame adapter.

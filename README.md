@@ -4,7 +4,7 @@ By JakeTheRipper. A separate project for original **32-bit Total War: SHOGUN 2**
 
 ## Status
 
-Current trial: **0.1.14-campaign-parity-test**. Restores Mori Medium Bune recruitment at the Harbour, raises Mori Nanban Trade Ship base campaign movement from40 to65, and raises Ikko monk base movement from20 to30. See [campaign parity details](docs/campaign-parity-0.1.14.md). All earlier engine/data fixes remain enabled. In-game recruitment and movement validation is pending.
+Current trial: **0.1.15-single-groups-test**. Allow single-unit land and naval battle groups, retain groups with one remaining member, and use the safe ordinary frame layout for single-member groups in compact mode. See [group implementation and testing](docs/single-unit-groups-0.1.15.md). All earlier engine/data fixes remain enabled. In-game group creation, locking, orders and casualty testing remain pending.
 
 [Full cumulative changelog](docs/full-changelog.md).
 
@@ -28,7 +28,7 @@ Saves and settings are shared with OG; use backed-up test saves during developme
 
 ## Build
 
-Requires Visual Studio C++ tools, the .NET Framework 4.8 targeting pack and Python 3. Pass -Python with the interpreter path if python.exe is unavailable.
+Requires Visual Studio C++ tools, the .NET Framework 4.8 targeting pack and Python 3 with pefile and Unicorn for the native group fixtures. Pass -Python with the interpreter path if python.exe is unavailable.
 
 ```powershell
 .\build.ps1 -Keygen -GameDir '<OG game directory>' # first build only
