@@ -1,28 +1,55 @@
-# Shogun 2 — 2026 Ultimate Engine Bug Fix Patch
+# SHOGUN 2 — Ultimate Engine Bug Fix Patch
 
-By JakeTheRipper. For original **32-bit Total War: SHOGUN 2**, Steam app 34330, separate from CE and the x64 reconstruction.
+By **JakeTheRipper**. A community gameplay patch for the **original Steam version of Total War: SHOGUN 2 on Windows**.
 
-## Current build
+It fixes battle controls, formations, artillery aiming, morale and other gameplay problems. Your original game files stay intact.
 
-[0.1.34 — Neutral ranged battle difficulty](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.34-neutral-ranged-difficulty) is a cumulative gameplay test release. It includes the prior engine/data fixes, locked formation corrections and siege-equipment centre aiming. Hard and Very Hard now give land/naval AI no extra core marksmanship or loading skill; other difficulty effects and earned unit bonuses remain.
+**[Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.34-neutral-ranged-difficulty/Shogun2UltimatePatch_Installer.zip)** · [Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.34-neutral-ranged-difficulty) · [Full changelog](CHANGELOG.md)
 
-[Full included changelog](CHANGELOG.md).
+**Current version: 0.1.34.** This download includes all previous fixes. You do not need any earlier patch, a separate mod pack or a GitHub account.
 
-The siege work-budget adjustment remains a mitigation trial. Version 0.1.34 has passed native and installer checks; the new difficulty change still needs player battle testing. Graphics/shader experiments are disabled and are not included.
+Using **SHOGUN 2 Complete Edition**? Use [Remastered CE](https://github.com/JakeTheRipperYT/Remastered-CE) instead.
 
-## Install and launch
+## Install in a few steps
 
-1. Download `Shogun2UltimatePatch_Installer.zip` from the release while signed into a GitHub account with access, then extract it. The setup EXE is also available directly.
-2. Run `Shogun2UltimatePatch_Setup.exe` and select your OG SHOGUN 2 installation.
-3. Choose **Offline… → Use included release (offline)**, then **Install / Update**. The installer embeds the complete signed cumulative package; earlier patch builds are not required.
-4. With Steam running, use `Launch_Shogun2_Ultimate_Patch.exe` in the game folder.
+1. Make sure the **original Total War: SHOGUN 2** is installed through Steam. Close the game before installing the patch.
+2. [Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.34-neutral-ranged-difficulty/Shogun2UltimatePatch_Installer.zip). Right-click the downloaded ZIP, choose **Extract All**, then open the extracted folder.
+3. Run **`Shogun2UltimatePatch_Setup.exe`**.
+4. Check the game folder shown in the installer. If it is blank or wrong, click **Browse…** and select the folder containing **`Shogun2.exe`**. Steam's **Browse local files** option can help you find it.
+5. Leave **GitHub — latest release** selected and click **Install / Update**. Wait for the installation-complete message.
+6. Make sure **Steam is running**, then click **Launch Ultimate Patch**.
 
-This repository is private. Its credential-free updater cannot retrieve private GitHub releases; use the included offline release or choose the downloaded `.s2ub` package. Do not copy a GitHub token into the launcher.
+That's it. The installer builds the patch for you; there are no game files to copy manually.
 
-The installer verifies the supported vanilla inputs and reconstructs a separate patched engine and three data packs. Original game files remain intact. Release assets contain reconstruction instructions, replacement payloads and our launcher, not complete original game binaries or packs. Saves/settings are shared with OG.
+## Play after installing
 
-## Verification
+Use **`Launch_Shogun2_Ultimate_Patch.exe`** in your SHOGUN 2 game folder, or open the setup again and click **Launch Ultimate Patch**.
 
-The shipped launcher passed 24 compiled-binary scenarios with simulated Windows APIs, including duplicate-game prevention, Steam checks, missing files, argument forwarding and launch failures. The installer passed 28 self-tests, including signature checks, safe update rollback and package selection. The gameplay build passed 240 native ranged difficulty cases, 147 centre-aim cases and inherited gameplay regressions. These checks do not claim a live Steam/game startup test or comprehensive multiplayer coverage.
+Launching the normal game through Steam starts the normal version. Use the patch launcher when you want to play with the fixes.
 
-Use `SHA256SUMS.txt` to compare release downloads. Keep a backup of the previous patch build before updating.
+The patched game shares your existing saves and settings with the original game.
+
+## What does it fix?
+
+- **Single-unit groups:** keep one-unit groups working, including after ungrouping and regrouping.
+- **Locked formations:** preserve the spacing you set when moving, rotating and dragging a locked formation.
+- **Artillery:** make cannons and mangonels aim at the centre of enemy formations while keeping normal range checks and projectile spread.
+- **Firing and morale:** reduce unnecessary first-volley delays and correct how fear, traits and morale effects combine.
+- **Units and recruitment:** correct missing abilities, recruitment options, ammunition values and naval behaviour. See the [full changelog](CHANGELOG.md) for the complete list.
+- **Battle difficulty:** remove extra AI accuracy and reload bonuses on Hard and Very Hard while retaining other difficulty effects.
+
+This is a **gameplay test release**. Wider battle and multiplayer testing is still ongoing. The siege pathfinding adjustment is a mitigation, and graphics/shader experiments are excluded.
+
+## Update to a newer version
+
+Close the game, download and extract the latest installer ZIP, and run **Install / Update** again. Keep **GitHub — latest release** selected to get the newest published patch.
+
+## If the download inside the installer fails
+
+Click **Offline… → Use included release (offline)**, then **Install / Update**. The installer ZIP already contains the complete 0.1.34 patch, so you can install that version without another download.
+
+You do not need to download or select the separate `.s2ub` file for a normal installation. That file is an optional update package for the installer.
+
+## Remove the patch
+
+Open **`Shogun2UltimatePatch_Setup.exe`** and click **Uninstall**. Your original Steam game stays installed.
