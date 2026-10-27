@@ -1,4 +1,15 @@
-# Included gameplay changes — 0.1.34
+# Included gameplay changes — 0.1.40
+
+## New since 0.1.34
+
+- Correct firing sound selection for affected matchlock, bow and torch projectiles that could incorrectly use cannon audio.
+- Keep battle unit status text together at the original tooltip size, preserving fonts, positions, colours and ordinary spaces, including **general nearby**.
+- Allow nearby land armies on either side to reinforce night battles when their own leading general has night-battle ability. The attacking army and direct target remain included; normal reinforcement range and alliance rules still apply.
+- Make night reinforcement portraits, unit cards, exclusion tooltips and reinforcement totals match each army's eligibility. Preserve normal day, naval and artillery restrictions.
+
+Night reinforcement participation and the deployment UI were confirmed in player testing. The tooltip correction was also confirmed. Wider campaign, battle-result and multiplayer testing remains ongoing; multiplayer desync investigation is separate.
+
+## Full cumulative changelog
 
 - Allow units in Yari Wall to accept movement orders while engaged in melee.
 - Allow movement orders while Kneel Fire is enabled.
@@ -31,7 +42,6 @@
 - Add a separate OG launcher and patched bootstrap with Steam checks, duplicate-instance protection and argument forwarding.
 - Make Install/Update reconstruct private data.pack, models.pack and English localisation packs from the player’s original files.
 - Add signed reconstruction packages, installer compatibility checks, verified installation, rollback handling and ownership-protected uninstall.
-- Move development files, compiler/test temporary files, retained build artifacts and previous-build backups to F:.
 - Add Mori Medium Bune recruitment at the Harbour, matching the ordinary variant’s earliest recruitment port.
 - Increase Mori Nanban Trade Ship base campaign movement from **40 to 65**, matching the Nanban ship available to Otomo.
 - Increase Ikko monk agent base movement from **20 to 30**, matching regular monks.
@@ -46,3 +56,9 @@
 - Restrict centre aiming to land siege equipment, retaining ordinary infantry, rocket, crew and naval targeting.
 - Set Hard and Very Hard AI core marksmanship difficulty multipliers to 1.0 for land and naval units, including Legendary's Very Hard battle tier.
 - Remove the matching AI loading-skill additions while preserving earned unit bonuses, player/Easy behavior and other difficulty effects.
+- Prioritize weapon/projectile compatibility over unit preference in firing sound selection, preventing cross-weapon cannon audio on affected bow, matchlock and torch cases; preserve incoming sound selection.
+
+- Keep the battle unit status line together using native no-wrap, with original tooltip size, positions, fonts, colours and ordinary spaces.
+
+- Allow additional normally eligible land armies on either side to reinforce night battles when their own leading general has effective night-battle ability; preserve attacker and direct target.
+- Display qualified night reinforcements consistently in deployment portraits, unit cards, exclusion tooltips and reinforcement totals while preserving day, naval and artillery restrictions.

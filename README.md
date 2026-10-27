@@ -2,18 +2,18 @@
 
 By **JakeTheRipper**. A community gameplay patch for the **original Steam version of Total War: SHOGUN 2 on Windows**.
 
-It fixes battle controls, formations, artillery aiming, morale and other gameplay problems. Your original game files stay intact.
+It fixes battle controls, formations, artillery aiming, projectile sounds, night reinforcements, morale and other gameplay problems. Your original game files stay intact.
 
-**[Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.34-neutral-ranged-difficulty/Shogun2UltimatePatch_Installer.zip)** · [Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.34-neutral-ranged-difficulty) · [Full changelog](CHANGELOG.md)
+**[Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.40-night-deployment-ui/Shogun2UltimatePatch_Installer.zip)** · [Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.40-night-deployment-ui) · [Full changelog](CHANGELOG.md)
 
-**Current version: 0.1.34.** This download includes all previous fixes. You do not need any earlier patch, a separate mod pack or a GitHub account.
+**Current version: 0.1.40.** This download includes all previous fixes. You do not need any earlier patch, a separate mod pack or a GitHub account.
 
 Using **SHOGUN 2 Complete Edition**? Use [Remastered CE](https://github.com/JakeTheRipperYT/Remastered-CE) instead.
 
 ## Install in a few steps
 
 1. Make sure the **original Total War: SHOGUN 2** is installed through Steam. Close the game before installing the patch.
-2. [Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.34-neutral-ranged-difficulty/Shogun2UltimatePatch_Installer.zip). Right-click the downloaded ZIP, choose **Extract All**, then open the extracted folder.
+2. [Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.40-night-deployment-ui/Shogun2UltimatePatch_Installer.zip). Right-click the downloaded ZIP, choose **Extract All**, then open the extracted folder.
 3. Run **`Shogun2UltimatePatch_Setup.exe`**.
 4. Check the game folder shown in the installer. If it is blank or wrong, click **Browse…** and select the folder containing **`Shogun2.exe`**. Steam's **Browse local files** option can help you find it.
 5. Leave **GitHub — latest release** selected and click **Install / Update**. Wait for the installation-complete message.
@@ -36,9 +36,12 @@ The patched game shares your existing saves and settings with the original game.
 - **Artillery:** make cannons and mangonels aim at the centre of enemy formations while keeping normal range checks and projectile spread.
 - **Firing and morale:** reduce unnecessary first-volley delays and correct how fear, traits and morale effects combine.
 - **Units and recruitment:** correct missing abilities, recruitment options, ammunition values and naval behaviour. See the [full changelog](CHANGELOG.md) for the complete list.
+- **Projectile sounds:** correct affected matchlock, bow and torch firing sounds that could incorrectly use cannon audio.
+- **Night battles:** allow nearby armies on either side to reinforce when their own leading general has night-battle ability, with matching deployment portraits, cards, tooltips and reinforcement totals.
+- **Battle tooltips:** keep the status text together at the original tooltip size, including an ordinary space in **general nearby**.
 - **Battle difficulty:** remove extra AI accuracy and reload bonuses on Hard and Very Hard while retaining other difficulty effects.
 
-This is a **gameplay test release**. Wider battle and multiplayer testing is still ongoing. The siege pathfinding adjustment is a mitigation, and graphics/shader experiments are excluded.
+This is a **gameplay test release**. Night reinforcement participation and its deployment UI, plus the tooltip wrapping correction, have been confirmed in player testing. Wider campaign, battle-result and multiplayer testing is still ongoing. The multiplayer desync investigation remains ongoing. The siege pathfinding adjustment is a mitigation, and graphics/shader experiments are excluded.
 
 ## Update to a newer version
 
@@ -46,7 +49,7 @@ Close the game, download and extract the latest installer ZIP, and run **Install
 
 ## If the download inside the installer fails
 
-Click **Offline… → Use included release (offline)**, then **Install / Update**. The installer ZIP already contains the complete 0.1.34 patch, so you can install that version without another download.
+Click **Offline… → Use included release (offline)**, then **Install / Update**. The installer ZIP already contains the complete 0.1.40 patch, so you can install that version without another download.
 
 You do not need to download or select the separate `.s2ub` file for a normal installation. That file is an optional update package for the installer.
 
