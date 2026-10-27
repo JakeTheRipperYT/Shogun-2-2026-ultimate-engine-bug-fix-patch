@@ -1,6 +1,23 @@
-# Included gameplay changes — 0.1.40
+# Included changes - 0.1.44
 
-## New since 0.1.34
+## New since 0.1.40
+
+- Combine setup, updates, mod profiles and Play in one larger window, with both panels always visible.
+- Keep Uninstall and Cancel on separate full-width rows and keep controls within the window when resized.
+- Discover local and Steam Workshop `.pack` mods, excluding PNG thumbnails and duplicate entries caused by equivalent Steam paths.
+- Add named profiles, manual order controls, dependency-based Auto-sort and checks for missing dependencies, cycles, conflicting filenames and overlapping file paths.
+- Stage selected mods without editing their originals and restore the original Steam mod script after the game closes. Correct native paired-comment syntax so generated mod commands reach the engine.
+- Install the combined launcher next to `UltimatePatch/mods`, preserve user mods/profiles through updates, and retain a verified signed package for offline repair.
+- Allow the installed launcher to update its managed files safely and open repair controls when managed engine files are missing.
+- Add local error logging for startup and launcher operations.
+
+Use the new installer ZIP once when updating from 0.1.40 or earlier; older installers safely reject this package. Movie-type packs already in game `data` keep the engine's automatic loading behavior.
+
+The combined launcher has player confirmation. The installed files match the signed package and the original game files remain intact. Focused checks cover 34 mod-core cases, 37 compiled native-helper scenarios with simulated Windows APIs, 35 setup checks, 32 installed-launcher checks and 39 combined UI checks. Broader game/mod-combination stability remains under testing. Engine and gameplay data are byte-for-byte unchanged from 0.1.40.
+
+## Previous update: 0.1.40
+
+### New since 0.1.34
 
 - Correct firing sound selection for affected matchlock, bow and torch projectiles that could incorrectly use cannon audio.
 - Keep battle unit status text together at the original tooltip size, preserving fonts, positions, colours and ordinary spaces, including **general nearby**.
@@ -9,7 +26,7 @@
 
 Night reinforcement participation and the deployment UI were confirmed in player testing. The tooltip correction was also confirmed. Wider campaign, battle-result and multiplayer testing remains ongoing; multiplayer desync investigation is separate.
 
-## Full cumulative changelog
+## Full cumulative gameplay changelog
 
 - Allow units in Yari Wall to accept movement orders while engaged in melee.
 - Allow movement orders while Kneel Fire is enabled.
