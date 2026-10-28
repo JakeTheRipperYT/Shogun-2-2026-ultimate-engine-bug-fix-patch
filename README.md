@@ -4,16 +4,16 @@ By **JakeTheRipper**. A community gameplay patch for the **original Steam versio
 
 Fixes battle controls, formations, artillery aiming, projectile sounds, night reinforcements, morale and other gameplay problems. The original game files stay intact.
 
-**[Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.44-unified-launcher/Shogun2UltimatePatch_Installer.zip)** | [Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.44-unified-launcher) | [Full changelog](CHANGELOG.md)
+**[Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip)** | [Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.45-graphics-unlock) | [Full changelog](CHANGELOG.md)
 
-**Current version: 0.1.44.** Includes all previous fixes and a larger combined launcher for installation, updates, mod selection and Play. No earlier patch, separate mod pack or GitHub account is required. Requires .NET Framework 4.8.
+**Current version: 0.1.45.** Removes the original graphics-card-ranking and video-memory quality locks, while retaining all previous fixes and the combined launcher for installation, updates, mod selection and Play. No earlier patch, separate mod pack or GitHub account is required. Requires .NET Framework 4.8.
 
 Using **SHOGUN 2 Complete Edition**? Use [Remastered CE](https://github.com/JakeTheRipperYT/Remastered-CE) instead.
 
 ## Install in a few steps
 
 1. Install the original **Total War: SHOGUN 2** through Steam and close the game.
-2. [Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.44-unified-launcher/Shogun2UltimatePatch_Installer.zip), right-click it, choose **Extract All**, and open the extracted folder.
+2. [Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip), right-click it, choose **Extract All**, and open the extracted folder.
 3. Run **`Shogun2UltimatePatch_Setup.exe`**. Setup and mod controls appear together in one window.
 4. Check **Game folder** on the left. Use **Browse...** to choose the folder containing **`Shogun2.exe`** if needed.
 5. Leave **GitHub - latest release** selected and click **Install / Update**. Wait for completion.
@@ -39,6 +39,7 @@ The normal Steam shortcut runs the original engine. Use the patch launcher to ap
 
 ## What does the patch fix?
 
+- **Graphics quality choices:** unlock Medium, High and Ultra presets and the full individual quality ranges regardless of the detected hardware quality tier. Preserve saved settings and recommended defaults. Actual DirectX shader, anti-aliasing and device capability requirements still apply.
 - **Single-unit groups:** keep one-unit groups working, including after ungrouping and regrouping.
 - **Locked formations:** preserve the spacing you set when moving, rotating and dragging a locked formation.
 - **Artillery:** aim cannons and mangonels at the centre of enemy formations while keeping normal range checks and projectile spread.
@@ -49,7 +50,7 @@ The normal Steam shortcut runs the original engine. Use the patch launcher to ap
 - **Battle tooltips:** keep status text together at the original tooltip size, including an ordinary space in **general nearby**.
 - **Battle difficulty:** remove extra AI accuracy and reload bonuses on Hard and Very Hard while retaining other difficulty effects.
 
-This remains a **test release**. The combined launcher, night reinforcement participation/deployment UI and tooltip correction have player confirmation. Installation integrity, launcher startup and focused checks pass. Broader campaign, battle-result, multiplayer and mod-combination testing continues; there is no universal crash-free guarantee. The multiplayer desync investigation is ongoing. Siege pathfinding remains a mitigation trial, and graphics/shader experiments are excluded. Engine and gameplay data are unchanged from 0.1.40.
+This remains a **test release**. The combined launcher, night reinforcement participation/deployment UI and tooltip correction have player confirmation. Installation integrity, launcher startup and focused checks pass. Broader campaign, battle-result, multiplayer and mod-combination testing continues; there is no universal crash-free guarantee. The multiplayer desync investigation is ongoing. Siege pathfinding remains a mitigation trial, and earlier shader experiments are excluded. Gameplay data is unchanged from 0.1.40; 0.1.45 adds only the graphics quality-policy unlock to the engine. Native checks cover 6,750 capability combinations and 54,000 original preset-getter calls. Live graphics-menu, Apply/restart and affected-user hardware testing remains ongoing.
 
 ## Update from an earlier version
 
@@ -59,7 +60,7 @@ After that, use **Install / Update** in the combined launcher. Keep **GitHub - l
 
 ## Offline installation and repair
 
-Choose **Offline... > Use included or installed release (offline)**, then **Install / Update**. The downloaded setup includes the complete 0.1.44 package. The installed launcher also retains its verified package for offline repair while the patch is installed.
+Choose **Offline... > Use included or installed release (offline)**, then **Install / Update**. The downloaded setup includes the complete 0.1.45 package. The installed launcher also retains its verified package for offline repair while the patch is installed.
 
 The separate `.s2ub` release asset is an optional signed update package; it is not needed for a normal installation.
 
@@ -68,3 +69,5 @@ The separate `.s2ub` release asset is an optional signed update package; it is n
 Close the game and click **Uninstall** in the combined launcher. Original game files, saves, user mods and profiles are kept.
 
 If a launcher error occurs, details are written locally to **`%LOCALAPPDATA%/Shogun2UltimatePatch/launcher-errors.log`**. Include the error text, patch version and enabled-mod list when reporting a problem.
+
+If Play reports an incomplete command, quote or paired `#` comment, the launcher has refused to change an unfinished existing `%APPDATA%/The Creative Assembly/Shogun2/scripts/user.script.txt`. Keep a backup and include that file when requesting help. Commands end with `;`, and native comments use paired `# ... #` markers. This graphics update does not automatically rewrite malformed existing scripts.

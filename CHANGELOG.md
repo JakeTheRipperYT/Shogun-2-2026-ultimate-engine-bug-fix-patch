@@ -1,6 +1,17 @@
-# Included changes - 0.1.44
+# Included changes - 0.1.45
 
-## New since 0.1.40
+## New since 0.1.44
+
+- Remove the vanilla graphics-card database and video-memory quality-tier restrictions that can leave only the Low preset available.
+- Make Medium, High and Ultra presets and the full individual quality ranges available independently of the detected hardware quality tier.
+- Preserve the original recommended defaults, saved settings, preset contents, memory budgets and genuine DirectX shader/anti-aliasing/device requirements.
+- Retain every previous gameplay fix and the same gameplay data packs. No earlier shader experiments are re-enabled.
+
+Validation executes 6,750 native initialization/capability-refresh comparisons and 54,000 original preset-getter calls at three relocated bases. All four presets are available, default/preset contents remain intact, and 3,300 already-unrestricted cases remain byte-identical. Existing native gameplay, audio, reinforcement, UI and tooltip checks pass, alongside installer, launcher, signed-package and archive checks. Installation is hash-verified; live graphics-menu, Apply/restart and affected-user hardware acceptance remain ongoing. This remains a test release.
+
+## Previous update: 0.1.44
+
+### New since 0.1.40
 
 - Combine setup, updates, mod profiles and Play in one larger window, with both panels always visible.
 - Keep Uninstall and Cancel on separate full-width rows and keep controls within the window when resized.
