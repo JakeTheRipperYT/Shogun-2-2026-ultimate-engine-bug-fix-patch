@@ -4,7 +4,17 @@ By **JakeTheRipper**. A community gameplay patch for the **original Steam versio
 
 Fixes battle controls, formations, artillery aiming, projectile sounds, night reinforcements, morale and other gameplay problems. The original game files stay intact.
 
-**[Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip)** | [Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.45-graphics-unlock) | [Full changelog](CHANGELOG.md)
+## 🟢 **[DOWNLOAD ONLY THE INSTALLER ZIP — CLICK HERE](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip)**
+
+> [!IMPORTANT]
+> **📦 THE ONLY FILE YOU NEED TO DOWNLOAD IS `Shogun2UltimatePatch_Installer.zip`.**
+>
+> **🟡 Right-click the ZIP → Extract All → open the extracted folder → run `Shogun2UltimatePatch_Setup.exe`.**
+> **Extract the entire ZIP before running setup.**
+>
+> **You do not need to download the separate EXE, `.s2ub` update package, or other release assets for a normal installation.** The ZIP includes the setup and required installation files; the launcher handles online update downloads.
+
+[Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.45-graphics-unlock) | [Full changelog](CHANGELOG.md)
 
 **Current version: 0.1.45.** Removes the original graphics-card-ranking and video-memory quality locks, while retaining all previous fixes and the combined launcher for installation, updates, mod selection and Play. No earlier patch, separate mod pack or GitHub account is required. Requires .NET Framework 4.8.
 
@@ -13,7 +23,7 @@ Using **SHOGUN 2 Complete Edition**? Use [Remastered CE](https://github.com/Jake
 ## Install in a few steps
 
 1. Install the original **Total War: SHOGUN 2** through Steam and close the game.
-2. [Download the installer ZIP](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip), right-click it, choose **Extract All**, and open the extracted folder.
+2. **[Download ONLY `Shogun2UltimatePatch_Installer.zip`](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip)**, right-click it, choose **Extract All**, and open the extracted folder.
 3. Run **`Shogun2UltimatePatch_Setup.exe`**. Setup and mod controls appear together in one window.
 4. Check **Game folder** on the left. Use **Browse...** to choose the folder containing **`Shogun2.exe`** if needed.
 5. Leave **GitHub - latest release** selected and click **Install / Update**. Wait for completion.
