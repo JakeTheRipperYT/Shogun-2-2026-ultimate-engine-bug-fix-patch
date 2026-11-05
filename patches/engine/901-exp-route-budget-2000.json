@@ -1,0 +1,14 @@
+{
+  "id": "exp-route-budget-2000",
+  "title": "EXPERIMENT: cached-route work budget 500 -> 2000 (Remastered CE parity)",
+  "description": "Navigation update FUN_103aac30 services the pending cached-route list (Pathfinder+0x148, next +0x1C) FIFO and stops after the first request once work counter Pathfinder+0x470 reaches 500. Remastered CE raised the equivalent limit to 2000, cutting siege lock-ups from ~85 s to 0-3 s without removing them. Kept disabled so the invalidation experiment can be measured on its own; enable to A/B.",
+  "enabled": false,
+  "writes": [
+    {
+      "va": "0x103AAEAA",
+      "expect": "F4 01 00 00",
+      "bytes": "D0 07 00 00",
+      "note": "cmp dword ptr [esi+0x470], 0x1f4 -> 0x7d0"
+    }
+  ]
+}

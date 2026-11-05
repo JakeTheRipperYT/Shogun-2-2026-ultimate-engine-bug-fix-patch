@@ -1,0 +1,26 @@
+{
+  "id": "siege-route-reissue",
+  "title": "Siege lock-up fix: soldiers on wall links keep their queued route instead of re-queueing every tick",
+  "description": "Root cause: docs/siege-lockup-root-cause.md. Link-move action update FUN_103EE240 (vtable 0x115E0E90) calls Entity::SetMoveTarget FUN_103DF290 every tick for soldiers on ladder/wall links (Entity+0x11F). When the soldier's previous route request is still waiting in the pathfinder queue, SetMoveTarget releases it (FUN_1039F9F0 -> FUN_1039EE40 -> FUN_1037EC90) and appends a new one at the queue tail. Once climbing starts, those soldiers never reach the head, and units on the walls (including the player's) freeze on move and dock orders. Both re-issue calls in FUN_103EE240 now go through a stub in .text padding. If the soldier is in movement state 2 (Entity+0x3BC, waiting for a route) and its request (Entity+0x3CC) isn't ready (+0x20), the stub returns as SetMoveTarget would (ret 8) and the request keeps its place. Otherwise it jumps to the original FUN_103DF290. The destination is the action's fixed +0x1C, so nothing is lost by skipping. New orders reach SetMoveTarget through other paths and are unaffected. The stub is position-independent apart from relative branches, so ASLR relocation is fine. The .text header size is owned by 000-text-cave.",
+  "enabled": false,
+  "writes": [
+    {
+      "va": "0x115A0C40",
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "81 B9 BC 03 00 00 02 00 00 00 75 13 8B 81 CC 03 00 00 85 C0 74 09 80 78 20 00 75 03 C2 08 00 E9 2C E6 E3 FE",
+      "note": "stub: cmp [ecx+0x3BC],2 / jne go / mov eax,[ecx+0x3CC] / test / jz go / cmp byte [eax+0x20],0 / jne go / ret 8 / go: jmp 0x103DF290"
+    },
+    {
+      "va": "0x103EE411",
+      "expect": "E8 7A 0E FF FF",
+      "bytes": "E8 2A 28 1B 01",
+      "note": "FUN_103EE240 re-issue call site 1 (no cooldown): call FUN_103DF290 -> call stub"
+    },
+    {
+      "va": "0x103EED63",
+      "expect": "E8 28 05 FF FF",
+      "bytes": "E8 D8 1E 1B 01",
+      "note": "FUN_103EE240 re-issue call site 2 (10-tick cooldown): call FUN_103DF290 -> call stub"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+# Build output
+build/
+dist/
+*.obj
+*.res
+*.pdb
+*.log
+
+# Game files must never be committed
+*.pack
+*.exe
+*.dll
+
+# Signing keys (the private key lives in %LOCALAPPDATA%\Shogun2UltimatePatch\dev, never here)
+*private*.xml
+signing-key.xml
+
+# Native source-backed scheduler build products
+/research/x64/scheduler-build/
+/research/x64/scheduler-test-build/
+
+# Native frontend source build products
+/research/x64/frontend-build/
+
+# Native asset decoder build products
+/research/x64/assets-build/
