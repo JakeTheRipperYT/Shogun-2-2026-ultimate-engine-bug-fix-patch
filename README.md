@@ -4,7 +4,7 @@ By **JakeTheRipper**. A community gameplay patch for the **original Steam versio
 
 Fixes battle controls, formations, artillery aiming, projectile sounds, night reinforcements, morale and other gameplay problems. The original game files stay intact.
 
-## 🟢 **[DOWNLOAD ONLY THE INSTALLER ZIP — CLICK HERE](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip)**
+## 🟢 **[DOWNLOAD ONLY THE INSTALLER ZIP — CLICK HERE](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.46-gameplay-fixes/Shogun2UltimatePatch_Installer.zip)**
 
 > [!IMPORTANT]
 > **📦 THE ONLY FILE YOU NEED TO DOWNLOAD IS `Shogun2UltimatePatch_Installer.zip`.**
@@ -14,16 +14,16 @@ Fixes battle controls, formations, artillery aiming, projectile sounds, night re
 >
 > **You do not need to download the separate EXE, `.s2ub` update package, or other release assets for a normal installation.** The ZIP includes the setup and required installation files; the launcher handles online update downloads.
 
-[Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.45-graphics-unlock) | [Full changelog](CHANGELOG.md)
+[Release notes](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/tag/v0.1.46-gameplay-fixes) | [Full changelog](CHANGELOG.md)
 
-**Current version: 0.1.45.** Removes the original graphics-card-ranking and video-memory quality locks, while retaining all previous fixes and the combined launcher for installation, updates, mod selection and Play. No earlier patch, separate mod pack or GitHub account is required. Requires .NET Framework 4.8.
+**Current version: 0.1.46.** Adds Alt-drag movement and Ctrl+Alt rotation, fear-item/trait corrections, fleet-agent bulk landing, correct FOTS farm hover-card wealth, and recovery from obstructed artillery deployment. Includes every 0.1.45 fix and the combined launcher. No earlier patch, separate mod pack or GitHub account is required. Requires .NET Framework 4.8.
 
 Using **SHOGUN 2 Complete Edition**? Use [Remastered CE](https://github.com/JakeTheRipperYT/Remastered-CE) instead.
 
 ## Install in a few steps
 
 1. Install the original **Total War: SHOGUN 2** through Steam and close the game.
-2. **[Download ONLY `Shogun2UltimatePatch_Installer.zip`](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.45-graphics-unlock/Shogun2UltimatePatch_Installer.zip)**, right-click it, choose **Extract All**, and open the extracted folder.
+2. **[Download ONLY `Shogun2UltimatePatch_Installer.zip`](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/releases/download/v0.1.46-gameplay-fixes/Shogun2UltimatePatch_Installer.zip)**, right-click it, choose **Extract All**, and open the extracted folder.
 3. Run **`Shogun2UltimatePatch_Setup.exe`**. Setup and mod controls appear together in one window.
 4. Check **Game folder** on the left. Use **Browse...** to choose the folder containing **`Shogun2.exe`** if needed.
 5. Leave **GitHub - latest release** selected and click **Install / Update**. Wait for completion.
@@ -49,6 +49,11 @@ The normal Steam shortcut runs the original engine. Use the patch launcher to ap
 
 ## What does the patch fix?
 
+- **Formation movement:** Alt-drag moves selected formations; Ctrl+Alt rotates them with the original CE sensitivity and normal movement-order sound.
+- **Fleet agents:** bring agents ashore with the army on a bulk disembark order.
+- **FOTS farm cards:** show contextual fertility-adjusted wealth without changing campaign income.
+- **Artillery recovery:** allow Limber to cancel an obstructed deployment through the native packing routine.
+- **Fear items and traits:** correct Legendary Menpo and FOTS fear items to -4; FOTS Dread to -4 and Bloodthirsty to -4/-5/-6.
 - **Graphics quality choices:** unlock Medium, High and Ultra presets and the full individual quality ranges regardless of the detected hardware quality tier. Preserve saved settings and recommended defaults. Actual DirectX shader, anti-aliasing and device capability requirements still apply.
 - **Single-unit groups:** keep one-unit groups working, including after ungrouping and regrouping.
 - **Locked formations:** preserve the spacing you set when moving, rotating and dragging a locked formation.
@@ -60,17 +65,17 @@ The normal Steam shortcut runs the original engine. Use the patch launcher to ap
 - **Battle tooltips:** keep status text together at the original tooltip size, including an ordinary space in **general nearby**.
 - **Battle difficulty:** remove extra AI accuracy and reload bonuses on Hard and Very Hard while retaining other difficulty effects.
 
-This remains a **test release**. The combined launcher, night reinforcement participation/deployment UI and tooltip correction have player confirmation. Installation integrity, launcher startup and focused checks pass. Broader campaign, battle-result, multiplayer and mod-combination testing continues; there is no universal crash-free guarantee. The multiplayer desync investigation is ongoing. Siege pathfinding remains a mitigation trial, and earlier shader experiments are excluded. Gameplay data is unchanged from 0.1.40; 0.1.45 adds only the graphics quality-policy unlock to the engine. Native checks cover 6,750 capability combinations and 54,000 original preset-getter calls. Live graphics-menu, Apply/restart and affected-user hardware testing remains ongoing.
+This remains a **test release**. The formation movement, fleet-agent landing, farm-card display and artillery recovery fixes have player confirmation. A fresh installer reconstructed the engine, bootstrap, native launcher and all three packs byte for byte against the tested installation. All 35 installer self-tests pass. Earlier fixes remain included. [Detailed source and verification](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/blob/release/0.1.46-gameplay-fixes/docs/release-0.1.46.md).
 
 ## Update from an earlier version
 
-**Download and run this new installer ZIP once if you use 0.1.40 or earlier.** Older installers safely reject the new combined-launcher package. There is no need to uninstall first.
+**Download and run this new installer ZIP once if you use 0.1.45 or earlier.** The original signing key was lost, so this release uses a replacement key in the installer and combined launcher. Earlier installers cannot verify the new packages. There is no need to uninstall first.
 
 After that, use **Install / Update** in the combined launcher. Keep **GitHub - latest release** selected for the newest published patch. User mods and profiles are retained through updates.
 
 ## Offline installation and repair
 
-Choose **Offline... > Use included or installed release (offline)**, then **Install / Update**. The downloaded setup includes the complete 0.1.45 package. The installed launcher also retains its verified package for offline repair while the patch is installed.
+Choose **Offline... > Use included or installed release (offline)**, then **Install / Update**. The downloaded setup includes the complete 0.1.46 package. The installed launcher also retains its verified package for offline repair while the patch is installed.
 
 The separate `.s2ub` release asset is an optional signed update package; it is not needed for a normal installation.
 
@@ -80,4 +85,4 @@ Close the game and click **Uninstall** in the combined launcher. Original game f
 
 If a launcher error occurs, details are written locally to **`%LOCALAPPDATA%/Shogun2UltimatePatch/launcher-errors.log`**. Include the error text, patch version and enabled-mod list when reporting a problem.
 
-If Play reports an incomplete command, quote or paired `#` comment, the launcher has refused to change an unfinished existing `%APPDATA%/The Creative Assembly/Shogun2/scripts/user.script.txt`. Keep a backup and include that file when requesting help. Commands end with `;`, and native comments use paired `# ... #` markers. This graphics update does not automatically rewrite malformed existing scripts.
+If Play reports an incomplete command, quote or paired `#` comment, the launcher has refused to change an unfinished existing `%APPDATA%/The Creative Assembly/Shogun2/scripts/user.script.txt`. Keep a backup and include that file when requesting help. Commands end with `;`, and native comments use paired `# ... #` markers. This release does not automatically rewrite malformed existing scripts.

@@ -1,3 +1,14 @@
+# Changelog
+
+## 0.1.46-gameplay-fixes
+
+- Add Alt-drag formation movement, regular order feedback, and Ctrl+Alt rotation matching the original CE sensitivity.
+- Correct Legendary Menpo and FOTS fear items to -4; FOTS Dread to -4 and Bloodthirsty to -4/-5/-6.
+- Bring fleet agents ashore with a bulk army disembark order, retaining the three-agent limit.
+- Display fertility-adjusted contextual wealth on FOTS farm hover cards without changing income.
+- Allow native limber recovery from obstructed artillery deployment.
+- Preserve the complete signed 0.1.45 baseline. Replace the lost signing key in the installer/launcher; downloading the new installer is required once.
+- See [release reconstruction and validation](https://github.com/JakeTheRipperYT/Shogun-2-2026-ultimate-engine-bug-fix-patch/blob/release/0.1.46-gameplay-fixes/docs/release-0.1.46.md).
 # Included changes - 0.1.45
 
 ## New since 0.1.44
