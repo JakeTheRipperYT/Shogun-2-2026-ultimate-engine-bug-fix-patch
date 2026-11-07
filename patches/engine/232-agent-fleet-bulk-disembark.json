@@ -1,0 +1,26 @@
+{
+  "id": "agent-fleet-bulk-disembark",
+  "title": "Bring fleet agents ashore with a bulk army landing",
+  "enabled": false,
+  "description": "Before the existing successful army unload, transfer fleet agents to its carried army using the original native passenger routine. Guard null/self destinations and the three-agent capacity. Preserve all caller registers/flags and tail-call the unchanged unload. Normal agent-only disembarkation is untouched. Local trial pending gameplay verification.",
+  "sourceSha256": "a0a8df960eccc629ebd7b22c7c41071b6762472ef0f094696dce509eb683e631",
+  "sha256": "4894baf06e8ab4db3f5d1f741c45f7040a759ebf7112c8902ab35cb5855cbf51",
+  "writes": [
+    {
+      "va": "0x108a7a52",
+      "offset": 9072210,
+      "expect": "e8 39 af d4 ff",
+      "bytes": "e8 a9 5d 4e 01"
+    },
+    {
+      "va": "0x11d8d800",
+      "offset": 25816064,
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "9c 60 8b f1 85 f6 0f 84 48 00 00 00 8d 8e bc 00 00 00 e8 49 81 65 fe 85 c0 0f 84 35 00 00 00 3b c6 0f 84 2d 00 00 00 8b f8 8b 46 6c 8b 57 6c 83 f8 03 0f 87 1c 00 00 00 83 fa 03 0f 87 13 00 00 00 03 c2 83 f8 03 0f 87 08 00 00 00 56 8b cf e8 7c 1d 87 fe 61 9d e9 35 51 86 fe"
+    }
+  ],
+  "hook": "0x108a7a52",
+  "adapter": "0x11d8d800",
+  "adapterBytes": 91,
+  "gameplayTested": false
+}

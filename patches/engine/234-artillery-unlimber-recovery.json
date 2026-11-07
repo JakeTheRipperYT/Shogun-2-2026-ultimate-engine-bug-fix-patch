@@ -1,0 +1,59 @@
+{
+  "id": "artillery-unlimber-recovery",
+  "title": "Recover artillery from obstructed unlimber transitions",
+  "enabled": false,
+  "description": "Permit the native limber-order handler during the three deployment phases. In the two earlier phases honor its existing re-limber request before blocked formation/animation completion. UNLIMBERED_REFORM already handles that request. Preserve native FSM exit/entry, LIMBER_STATE cleanup and attachment completion, unit eligibility, routing and gun counts. No forced gun-ready flags or collision bypass.",
+  "sourceSha256": "7108a609c97bf6c448905eeba1ecc2b14b3b6cf86dff9ec93c816bf35eb3ddd5",
+  "sha256": "0d6e29bdfb3d2d9d35c21cb0cdf36f7a50aee3a7783e2f9af991523d654452ab",
+  "adapter": "0x11d8da00",
+  "adapterBytes": 76,
+  "entries": {
+    "limbered_reform": "0x11d8da00",
+    "unlimber": "0x11d8da26"
+  },
+  "writes": [
+    {
+      "va": "0x1015bd38",
+      "offset": 1421624,
+      "expect": "74 18",
+      "bytes": "90 90",
+      "note": "Allow recovery request during LIMBERED_REFORM_STATE"
+    },
+    {
+      "va": "0x1015bd3f",
+      "offset": 1421631,
+      "expect": "74 11",
+      "bytes": "90 90",
+      "note": "Allow recovery request during UNLIMBER_STATE"
+    },
+    {
+      "va": "0x1015bd46",
+      "offset": 1421638,
+      "expect": "74 0a",
+      "bytes": "90 90",
+      "note": "Allow recovery request during UNLIMBERED_REFORM_STATE"
+    },
+    {
+      "va": "0x100f9230",
+      "offset": 1017392,
+      "expect": "56 8b 74 24 08",
+      "bytes": "e9 cb 47 c9 01",
+      "note": "Honor existing re-limber request before waiting for obstructed deployment; normal path preserved"
+    },
+    {
+      "va": "0x100f92e0",
+      "offset": 1017568,
+      "expect": "56 8b 74 24 08",
+      "bytes": "e9 41 47 c9 01",
+      "note": "Honor existing re-limber request before waiting for obstructed deployment; normal path preserved"
+    },
+    {
+      "va": "0x11d8da00",
+      "offset": 25816576,
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "8b 44 24 04 80 78 0d 00 0f 85 0a 00 00 00 56 8b 74 24 08 e9 1d b8 36 fe 8d 48 cc 8b 11 ff 92 58 01 00 00 c2 04 00 8b 44 24 04 80 78 0d 00 0f 85 0a 00 00 00 56 8b 74 24 08 e9 a7 b8 36 fe 8d 48 cc 8b 11 ff 92 58 01 00 00 c2 04 00",
+      "note": "PIC recovery adapters; return existing native LIMBER_STATE token"
+    }
+  ],
+  "gameplayTested": false
+}

@@ -1,60 +1,103 @@
 # Changelog
 
-## 0.1.16-single-group-cleanup-test
+## 0.1.46-gameplay-fixes
 
-- Destroy the engine group when its last UI member is removed, preventing empty records from surviving after ungrouping.
-- Prevent a recreated group from reusing an ID still occupied by that stale record and losing movement/lock input.
-- Preserve locked and unlocked singleton groups, multi-unit behavior, negative-count rejection and existing ownership/existence checks. See [cleanup regression](docs/single-unit-group-cleanup-0.1.16.md).
+- Add Alt-drag formation movement, regular order feedback, and Ctrl+Alt rotation matching the original CE sensitivity.
+- Correct Legendary Menpo and FOTS fear items to -4; FOTS Dread to -4 and Bloodthirsty to -4/-5/-6.
+- Bring fleet agents ashore with a bulk army disembark order, retaining the three-agent limit.
+- Display fertility-adjusted contextual wealth on FOTS farm hover cards without changing income.
+- Allow native limber recovery from obstructed artillery deployment.
+- Preserve the complete signed 0.1.45 baseline. Replace the lost signing key in the installer/launcher; downloading the new installer is required once.
+- See [release reconstruction and validation](docs/release-0.1.46.md).
+# Included changes - 0.1.45
 
-## 0.1.15-single-groups-test
+## New since 0.1.44
 
+- Remove the vanilla graphics-card database and video-memory quality-tier restrictions that can leave only the Low preset available.
+- Make Medium, High and Ultra presets and the full individual quality ranges available independently of the detected hardware quality tier.
+- Preserve the original recommended defaults, saved settings, preset contents, memory budgets and genuine DirectX shader/anti-aliasing/device requirements.
+- Retain every previous gameplay fix and the same gameplay data packs. No earlier shader experiments are re-enabled.
+
+Validation executes 6,750 native initialization/capability-refresh comparisons and 54,000 original preset-getter calls at three relocated bases. All four presets are available, default/preset contents remain intact, and 3,300 already-unrestricted cases remain byte-identical. Existing native gameplay, audio, reinforcement, UI and tooltip checks pass, alongside installer, launcher, signed-package and archive checks. Installation is hash-verified; live graphics-menu, Apply/restart and affected-user hardware acceptance remain ongoing. This remains a test release.
+
+## Previous update: 0.1.44
+
+### New since 0.1.40
+
+- Combine setup, updates, mod profiles and Play in one larger window, with both panels always visible.
+- Keep Uninstall and Cancel on separate full-width rows and keep controls within the window when resized.
+- Discover local and Steam Workshop `.pack` mods, excluding PNG thumbnails and duplicate entries caused by equivalent Steam paths.
+- Add named profiles, manual order controls, dependency-based Auto-sort and checks for missing dependencies, cycles, conflicting filenames and overlapping file paths.
+- Stage selected mods without editing their originals and restore the original Steam mod script after the game closes. Correct native paired-comment syntax so generated mod commands reach the engine.
+- Install the combined launcher next to `UltimatePatch/mods`, preserve user mods/profiles through updates, and retain a verified signed package for offline repair.
+- Allow the installed launcher to update its managed files safely and open repair controls when managed engine files are missing.
+- Add local error logging for startup and launcher operations.
+
+Use the new installer ZIP once when updating from 0.1.40 or earlier; older installers safely reject this package. Movie-type packs already in game `data` keep the engine's automatic loading behavior.
+
+The combined launcher has player confirmation. The installed files match the signed package and the original game files remain intact. Focused checks cover 34 mod-core cases, 37 compiled native-helper scenarios with simulated Windows APIs, 35 setup checks, 32 installed-launcher checks and 39 combined UI checks. Broader game/mod-combination stability remains under testing. Engine and gameplay data are byte-for-byte unchanged from 0.1.40.
+
+## Previous update: 0.1.40
+
+### New since 0.1.34
+
+- Correct firing sound selection for affected matchlock, bow and torch projectiles that could incorrectly use cannon audio.
+- Keep battle unit status text together at the original tooltip size, preserving fonts, positions, colours and ordinary spaces, including **general nearby**.
+- Allow nearby land armies on either side to reinforce night battles when their own leading general has night-battle ability. The attacking army and direct target remain included; normal reinforcement range and alliance rules still apply.
+- Make night reinforcement portraits, unit cards, exclusion tooltips and reinforcement totals match each army's eligibility. Preserve normal day, naval and artillery restrictions.
+
+Night reinforcement participation and the deployment UI were confirmed in player testing. The tooltip correction was also confirmed. Wider campaign, battle-result and multiplayer testing remains ongoing; multiplayer desync investigation is separate.
+
+## Full cumulative gameplay changelog
+
+- Allow units in Yari Wall to accept movement orders while engaged in melee.
+- Allow movement orders while Kneel Fire is enabled.
+- Correct naval defender AI so defending fleets use the active attack behaviour and select an opposing fleet.
+- Remove unnecessary standing-idle animation delays before the first Fire by Rank volley.
+- Make fear contributions from traits, items and skills combine numerically instead of collapsing to a flat −4 penalty or cancelling one another.
+- Set War Is Slaughter/Bloodthirsty/Blood Soaked enemy-morale penalties to −4/−5/−6.
+- Set Sword of Amaterasu and Dreaded Force enemy-morale penalties to −4 each.
+- Normalize both Intimidating levels to a −4 contribution and ROTS Dreaded levels to −1/−2.
+- Make Brave morale bonuses progress through +1/+2/+3.
+- Make Cowardly morale penalties progress through −1/−2/−3.
+- Add Yari Square to ordinary, Hattori, dojo and multiplayer Yari Samurai: unlock through Spear Expertise in campaign and the existing default custom-battle unlock.
+- Give Yari Ronin Rapid Advance.
+- Add Warrior Nuns to Ikko Ikki recruitment at the Jodo Shinshu Fortified Monastery after Scholarship and at Honganji after Neo-Confucianism, with recruitment XP of 2 and 3 respectively.
+- Add Warrior Nuns to the Ikko Ikki custom/multiplayer roster through an Ikko variant using the original unit’s combat stats, costs, caps, voices and appearance.
+- Set ammunition to 2 for all eight existing Kisho Ninja variants, including clan, hero, multiplayer and FOTS variants.
+- Correct Hattori and Tokugawa Kisho Ninja stats to melee attack 17, melee defence 11, accuracy 50 and loading skill 70.
+- Add the six missing melee/ranged infantry fatigue rows: tired/very tired/exhausted movement, charge and melee penalties of −10%/−25%/−50%, and accuracy penalties of −5%/−10%/−15%.
+- Give Hattori Matchlock Ashigaru, Ikko Ikki Matchlock Ashigaru and Hattori Matchlock Samurai the firearm officer instead of the katana officer.
+- Apply the general’s bow-accuracy bonus to Bow Ronin, Hattori Bandits, Chosokabe Daikyu Samurai, Bow Cavalry and Takeda Bow Cavalry.
+- Add missing Ikko monk recruitment XP bonuses to holy sites: Holy Site +1, Mountain Hermitage +1, Pilgrim Hostel +2, Fortified Monastery +1 and Great Soja Shrine +2.
+- Correct ship bailing, flooding, sinking and hull-section critical thresholds across the affected naval roster.
+- Correct the fire-risk modifier for standard, Mori and multiplayer Sengoku Bune to 1.0.
+- Restore the missing Mori campaign ship-movement bonus.
+- Restore Heavy Bune oar placement.
+- Restore FOTS Parrott gun firing smoke using the Armstrong gun’s Cannon_common_shot_lrg effect for both Parrott variants.
+- Correct the Oda banner model and its flower/umbrella textures.
+- Replace twelve original-campaign and FOTS loading images with correctly proportioned 1920×1080 versions.
+- Add colour formatting to 93 UI status strings while retaining their original wording.
+- Add a separate OG launcher and patched bootstrap with Steam checks, duplicate-instance protection and argument forwarding.
+- Make Install/Update reconstruct private data.pack, models.pack and English localisation packs from the player’s original files.
+- Add signed reconstruction packages, installer compatibility checks, verified installation, rollback handling and ownership-protected uninstall.
+- Add Mori Medium Bune recruitment at the Harbour, matching the ordinary variant’s earliest recruitment port.
+- Increase Mori Nanban Trade Ship base campaign movement from **40 to 65**, matching the Nanban ship available to Otomo.
+- Increase Ikko monk agent base movement from **20 to 30**, matching regular monks.
 - Allow player battle groups containing one land unit or ship.
-- Retain groups with one member after removals; preserve empty-group cleanup and the maximum group limit.
-- Display single-member group frames with the existing ordinary layout, including compact UI mode.
-- Add a guarded RX section for the 16-byte frame adapter and bounded recipe append support. Preserve earlier fixes and all data packs. See [implementation and testing](docs/single-unit-groups-0.1.15.md).
+- Retain groups with one remaining member and show single-member group frames safely in compact UI mode.
+- Remove the engine record when a group loses its last UI member, preventing stale group IDs from making recreated single-unit groups unresponsive.
+- Raise the siege cached-route work threshold from 500 to 2000 per navigation update as a mitigation trial.
+- Preserve deliberately overlapping player locked land-group formations when saving, moving and rotating their layouts.
+- Preserve overlap through direct, copied and composite drag placement while retaining checks against other groups.
+- Correct locked-group ownership lookup to prevent the battle-load crash introduced during the formation trial.
+- Aim land siege equipment, including cannons and mangonels, at target formation centres with consistent native range and firing-arc checks.
+- Restrict centre aiming to land siege equipment, retaining ordinary infantry, rocket, crew and naval targeting.
+- Set Hard and Very Hard AI core marksmanship difficulty multipliers to 1.0 for land and naval units, including Legendary's Very Hard battle tier.
+- Remove the matching AI loading-skill additions while preserving earned unit bonuses, player/Easy behavior and other difficulty effects.
+- Prioritize weapon/projectile compatibility over unit preference in firing sound selection, preventing cross-weapon cannon audio on affected bow, matchlock and torch cases; preserve incoming sound selection.
 
-## 0.1.14-campaign-parity-test
+- Keep the battle unit status line together using native no-wrap, with original tooltip size, positions, fonts, colours and ordinary spaces.
 
-- Add the missing Mori Medium Bune Harbour recruitment row, matching the ordinary variant's earliest port tier.
-- Raise Mori Nanban Trade Ship base campaign movement from40 to65, matching the Nanban ship available to Otomo.
-- Raise Ikko monk agent base movement from20 to30, matching regular monks.
-- Preserve all earlier fixes, existing higher-port recruitment, combat stats and normal campaign bonuses. See [details](docs/campaign-parity-0.1.14.md).
-
-## 0.1.13-parrott-smoke-test
-
-- Restore missing FOTS Parrott firing smoke using the Armstrong gun's existing Cannon_common_shot_lrg effect. Exactly one projectile field changes; preserve gun type, sound, ballistics and combat stats. Both campaign/custom and Avatar Parrott variants use the corrected projectile.
-- Retain all previous fixes, including the user-confirmed 0.1.12 unit access. See [smoke investigation](docs/parrott-smoke-0.1.13.md).
-
-## 0.1.12-unit-access-test
-
-- Give Yari Samurai variants Yari Square via existing Spear Expertise/custom-battle unlocks; give Yari Ronin Rapid Advance.
-- Add an isolated Ikko Warrior Nun variant to tier-3/4 Ikko temple recruitment and the Ikko custom-battle roster. Preserve the original unit, other clans' religion rules, costs, caps and combat stats.
-- Preserve prior fixes; add independent unit-access and research-tier validation. Keep developer/compiler/test outputs on F:. See [details and testing limits](docs/unit-access-0.1.12.md).
-
-## 0.1.11-collection-test
-
-- Integrate only the selected collection fixes; see [scope and attribution](docs/selected-collection-0.1.11.md). Keep original ninja IDs and set all eight variants to 2 ammo. Preserve current progressive traits and fear values.
-- Add signed schema-3 streaming reconstruction of private data, models and English localisation packs. Launcher checks all three; original game files remain intact.
-- Extend private pack redirection with native path/access/ABI/ASLR checks. Add archive-wide and field-level validation plus installer upgrade, failure and uninstall checks. Gameplay validation remains pending.
-
-## 0.1.10-fear-values-test
-
-- Apply the user's revised War Is Slaughter/Bloodthirsty/Blood Soaked progression: -4/-5/-6 enemy morale.
-- Sword of Amaterasu and the Dreaded Force effect bundle now each contribute -4. Both Intimidating levels remain -4.
-- Retain the 0.1.9 engine unchanged, including numeric stacking. Preserve Brave/Cowardly progression, Legendary Menpo -1, ROTS Dreaded -1/-2, FOTS data and other reward effects.
-- Exactly five float fields change relative to 0.1.9; thirteen guarded same-size writes reconstruct the private pack from vanilla. No pack headers, row counts, indexes or file sizes change.
-
-## 0.1.9-fear-test
-
-- Fix the shared enemy-morale effect's opposite signs: both Intimidating levels now contribute -4; ROTS Dreaded uses -1/-2. Trait, Sword and Legendary Menpo numeric values retain their existing negative sign. Other skill effects and FOTS source data stay unchanged.
-- Replace the constructor's flat-four conversion for negative numeric bonuses with their absolute combined magnitude, added to innate fear. Zero and positive legacy fear flags keep vanilla behavior. Retain strongest-nearby-enemy selection, range, eligibility and separate horse fear.
-- War Is Slaughter level 3 + Sword + Intimidating supplies -8, as selected by the user. This also makes the earlier -1/-2/-3 trait progression reach battle stats. The earlier Brave screenshot did not establish that enemy-morale magnitude worked.
-- Private native execution covers 756 constructor/aura cases, alongside the inherited regression checks. Controlled battle comparison remains pending.
-
-## 0.1.8-traits-test
-
-- Port CE progressive general traits to OG: War Is Slaughter enemy morale -1/-2/-3, Brave local morale +1/+2/+3, Cowardly local morale -1/-2/-3. Exactly six level-2/3 floats change; level 1, Cowardly personal security, thresholds and FOTS rows remain unchanged.
-- Install / Update builds a private data.pack from the supported vanilla pack using a signed streaming delta. Preserve every pack/table header, index and byte outside the six fields. No game packs are included in release assets.
-- Add data.pack-only engine redirection with path, access, argument, stack and ASLR checks. The native launcher requires the generated private pack before launch.
-- Retain the existing yari-wall, kneel-movement, naval and ranked-idle fixes. Campaign validation of this trait build is pending.
-- Requires the updated installer ZIP for schema 2 packages. Private GitHub releases still require a signed-in download; the credential-free updater cannot access them.
+- Allow additional normally eligible land armies on either side to reinforce night battles when their own leading general has effective night-battle ability; preserve attacker and direct target.
+- Display qualified night reinforcements consistently in deployment portraits, unit cards, exclusion tooltips and reinforcement totals while preserving day, naval and artillery restrictions.

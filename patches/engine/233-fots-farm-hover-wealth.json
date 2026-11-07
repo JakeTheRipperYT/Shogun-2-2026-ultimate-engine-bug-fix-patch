@@ -1,0 +1,28 @@
+{
+  "id": "fots-farm-hover-wealth",
+  "title": "Use contextual farm wealth in FOTS building hover cards",
+  "enabled": false,
+  "description": "Recognize bos_gdp_farm alongside gdp_farm in the existing building-effect card query. Retain the native contextual wealth calculation and generic no-context behavior. No economy, fertility multiplier, building data or other effect keys changed. Local trial pending visual comparison.",
+  "sourceSha256": "4894baf06e8ab4db3f5d1f741c45f7040a759ebf7112c8902ab35cb5855cbf51",
+  "sha256": "7108a609c97bf6c448905eeba1ecc2b14b3b6cf86dff9ec93c816bf35eb3ddd5",
+  "hook": "0x105b5b9b",
+  "adapter": "0x11d8d900",
+  "adapterBytes": 57,
+  "codeBytes": 44,
+  "stringVa": "0x11d8d92c",
+  "writes": [
+    {
+      "va": "0x105b5b9b",
+      "offset": 5984155,
+      "expect": "e8 30 87 b3 ff",
+      "bytes": "e8 60 7d 7d 01"
+    },
+    {
+      "va": "0x11d8d900",
+      "offset": 25816320,
+      "expect": "00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00",
+      "bytes": "56 8b f1 ff 74 24 08 e8 c4 09 36 fe 84 c0 0f 85 14 00 00 00 8b ce e8 00 00 00 00 58 8d 80 11 00 00 00 50 e8 a8 09 36 fe 5e c2 04 00 62 6f 73 5f 67 64 70 5f 66 61 72 6d 00"
+    }
+  ],
+  "gameplayTested": false
+}

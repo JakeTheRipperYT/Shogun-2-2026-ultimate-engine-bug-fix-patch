@@ -15,6 +15,9 @@ dist/
 *private*.xml
 signing-key.xml
 
+# Original signed package is a release input, not source control content.
+/installer/recovered/release
+
 # Native source-backed scheduler build products
 /research/x64/scheduler-build/
 /research/x64/scheduler-test-build/

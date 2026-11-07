@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "version": "0.1.46-gameplay-fixes",
+  "signatureVerified": true,
+  "installerBuildOnlySucceeded": true,
+  "files": [
+    {
+      "file": "empire.retail.dll",
+      "bytesCompared": 25818112,
+      "sha256": "0d6e29bdfb3d2d9d35c21cb0cdf36f7a50aee3a7783e2f9af991523d654452ab",
+      "byteIdentical": true
+    },
+    {
+      "file": "Shogun2_UB.exe",
+      "bytesCompared": 312320,
+      "sha256": "4d0d661c3c4d99ac25e8541a4fb83f40ab1d6caa5c70e599dad6f4362ac29a70",
+      "byteIdentical": true
+    },
+    {
+      "file": "data/data.pack",
+      "bytesCompared": 2561798441,
+      "sha256": "a77c9e980635847f24d380e3abc227203d1c660f6f7c62026505b7458d257232",
+      "byteIdentical": true
+    },
+    {
+      "file": "data/local_en.pack",
+      "bytesCompared": 624357616,
+      "sha256": "e33d493e4a815170a48c5cbcfa4ac3a6d51bae18e0c728fb0a86ad688a86a0b2",
+      "byteIdentical": true
+    },
+    {
+      "file": "data/models.pack",
+      "bytesCompared": 3203396799,
+      "sha256": "a9a9e78d793967a6b2ef7efab8ca90a50dd3ce0d84ba9247afc14a0516a3aa71",
+      "byteIdentical": true
+    },
+    {
+      "file": "Launch_Shogun2_Ultimate_Patch.exe",
+      "bytesCompared": 9216,
+      "sha256": "8c744108458bd94ad3e92216a3edaad472522ca326690addc99926db802f0a24",
+      "byteIdentical": true
+    }
+  ],
+  "bytesCompared": 6415692504,
+  "allGamePayloadsByteIdentical": true,
+  "managedLauncherMatchesInstalled": true,
+  "managedLauncherChange": "Replacement verification key and release version; user-authorized installer/launcher rebuild",
+  "managedLauncherSha256": "e521892d905232b64930cc442f73e21d68b77e89d3bb8d662962fbc086460be7",
+  "installedManagedLauncherSha256": "e521892d905232b64930cc442f73e21d68b77e89d3bb8d662962fbc086460be7",
+  "installerSelfTestsPassed": 35,
+  "tamperedPackageRejected": true,
+  "repeatedBuildsByteIdentical": true,
+  "distributionAssets": [
+    {
+      "name": "Shogun2UltimatePatch_Installer.zip",
+      "sha256": "04c3a1adc1fa61e5d267168b9b068cf2a8d4a672b686cebeef2c28ece3f302a4"
+    },
+    {
+      "name": "Shogun2UltimatePatch_Setup.exe",
+      "sha256": "033e18b8400d6086f5cbdb920829e95da337d1e135acc824d684b367e7d9f095"
+    },
+    {
+      "name": "Shogun2UltimatePatch-0.1.46-gameplay-fixes.s2ub",
+      "sha256": "abe52ea19978ffd3bd4495c438129348318c1400c404151ca1d8e21f700b783c"
+    }
+  ],
+  "cachedPackageMatchesSignedRelease": true,
+  "gameFilesModifiedByVerification": false
+}
